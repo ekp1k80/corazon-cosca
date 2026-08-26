@@ -1,0 +1,2678 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corazón — Estudio anatómico</title>
+<style>
+:root {
+  --bg:#0f1115; --panel:#171a21; --panel2:#1d222b; --text:#eef2f7; --muted:#9aa6b2;
+  --accent:#7aa2ff; --border:#2a313d; --shadow:0 12px 32px rgba(0,0,0,.28);
+}
+* { box-sizing:border-box; }
+html,body { margin:0; height:100%; background:var(--bg); color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+body { overflow:hidden; }
+.app { display:grid; grid-template-columns:290px 1fr; height:100vh; }
+.sidebar { background:var(--panel); border-right:1px solid var(--border); display:flex; flex-direction:column; min-width:0; }
+.brand { padding:20px 18px 15px; border-bottom:1px solid var(--border); }
+.brand h1 { font-size:18px; margin:0 0 6px; }
+.brand p { color:var(--muted); font-size:12px; margin:0; line-height:1.4; }
+.nav { overflow:auto; padding:10px; }
+.nav button { width:100%; text-align:left; color:var(--text); background:transparent; border:0; border-radius:9px;
+  padding:10px 11px; margin:2px 0; cursor:pointer; font-size:13px; line-height:1.25; }
+.nav button:hover { background:var(--panel2); }
+.nav button.active { background:#25304a; outline:1px solid #385083; }
+.num { color:var(--muted); display:inline-block; width:26px; }
+.main { display:grid; grid-template-rows:auto 1fr; min-width:0; min-height:0; }
+.topbar { padding:12px 18px; border-bottom:1px solid var(--border); display:flex; gap:12px; align-items:center; background:rgba(15,17,21,.94); }
+.title { flex:1; min-width:0; }
+.title h2 { margin:0; font-size:18px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.title small { color:var(--muted); }
+.kbd { font-size:11px; color:var(--muted); }
+kbd { border:1px solid var(--border); background:var(--panel2); border-bottom-width:2px; border-radius:5px; padding:2px 5px; color:var(--text); }
+.content { display:grid; grid-template-columns:minmax(430px,1.05fr) minmax(380px,.95fr); gap:0; min-height:0; }
+.viewer { min-width:0; min-height:0; border-right:1px solid var(--border); display:flex; flex-direction:column; background:#0b0d11; }
+.stage { position:relative; flex:1; min-height:0; display:flex; align-items:center; justify-content:center; padding:18px; overflow:hidden; }
+.stage img { max-width:100%; max-height:100%; object-fit:contain; border-radius:8px; box-shadow:var(--shadow); background:#fff; }
+.empty { color:var(--muted); text-align:center; max-width:360px; line-height:1.5; }
+.counter { position:absolute; top:14px; right:16px; font-size:12px; padding:5px 8px; border-radius:8px; background:rgba(0,0,0,.65); }
+.arrow { position:absolute; top:50%; transform:translateY(-50%); border:1px solid var(--border); background:rgba(20,24,30,.86); color:white;
+  width:42px; height:60px; border-radius:9px; cursor:pointer; font-size:24px; }
+.arrow:hover { background:#263044; }
+.prev { left:14px; } .next { right:14px; }
+.thumbs { height:122px; border-top:1px solid var(--border); display:flex; gap:9px; overflow-x:auto; padding:10px 12px; background:var(--panel); }
+.thumb { flex:0 0 145px; height:98px; border:2px solid transparent; border-radius:7px; overflow:hidden; cursor:pointer; opacity:.68; background:#fff; }
+.thumb.active { border-color:var(--accent); opacity:1; }
+.thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.text { overflow:auto; min-height:0; padding:28px 34px 80px; background:var(--bg); }
+.article { max-width:850px; margin:0 auto; line-height:1.67; }
+.article h1,.article h2,.article h3 { line-height:1.25; margin-top:1.5em; }
+.article h1:first-child,.article h2:first-child { margin-top:0; }
+.article h1 { font-size:28px; }
+.article h2 { font-size:22px; border-bottom:1px solid var(--border); padding-bottom:6px; }
+.article h3 { font-size:17px; color:#cdd8e7; }
+.article p,.article li { font-size:15px; }
+.article strong { color:#fff; }
+.article code { background:var(--panel2); padding:2px 5px; border-radius:4px; }
+.article blockquote { border-left:3px solid var(--accent); margin-left:0; padding-left:14px; color:#c5cfda; }
+.progress { height:3px; background:#242a34; }
+.progress > div { height:100%; background:var(--accent); transition:width .18s ease; }
+.mobile-menu { display:none; }
+@media (max-width:980px) {
+  body { overflow:auto; }
+  .app { grid-template-columns:1fr; height:auto; min-height:100vh; }
+  .sidebar { position:fixed; z-index:20; inset:0 auto 0 0; width:290px; transform:translateX(-100%); transition:.2s; box-shadow:var(--shadow); }
+  .sidebar.open { transform:translateX(0); }
+  .mobile-menu { display:inline-flex; }
+  .main { min-height:100vh; }
+  .content { grid-template-columns:1fr; }
+  .viewer { height:62vh; border-right:0; border-bottom:1px solid var(--border); }
+  .text { overflow:visible; }
+  .kbd { display:none; }
+}
+
+/* ===== Responsive + navegación mejorada ===== */
+.icon-btn,
+.nav-btn {
+  appearance:none;
+  border:1px solid var(--border);
+  background:var(--panel2);
+  color:var(--text);
+  border-radius:9px;
+  cursor:pointer;
+  min-height:40px;
+  padding:8px 12px;
+  font:inherit;
+}
+.icon-btn:hover,
+.nav-btn:hover { background:#263044; }
+
+.mobile-menu {
+  align-items:center;
+  justify-content:center;
+  width:42px;
+  min-width:42px;
+  padding:0;
+  font-size:20px;
+}
+
+.sidebar-close {
+  display:none;
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:38px;
+  height:38px;
+  padding:0;
+  align-items:center;
+  justify-content:center;
+  z-index:2;
+}
+
+.sidebar-backdrop {
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.52);
+  z-index:19;
+}
+
+.point-controls {
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.point-controls .nav-btn {
+  white-space:nowrap;
+}
+
+.bottom-nav {
+  display:flex;
+  gap:10px;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 16px;
+  border-top:1px solid var(--border);
+  background:var(--panel);
+}
+.bottom-nav .nav-btn {
+  flex:1;
+  max-width:280px;
+}
+.bottom-nav .next-point { margin-left:auto; }
+
+@media (max-width: 1180px) {
+  .content {
+    grid-template-columns:minmax(360px,1fr) minmax(360px,1fr);
+  }
+  .kbd { display:none; }
+}
+
+@media (max-width:980px) {
+  html, body { height:auto; min-height:100%; }
+  body { overflow:auto; }
+
+  .app {
+    display:block;
+    min-height:100vh;
+    height:auto;
+  }
+
+  .sidebar {
+    position:fixed;
+    z-index:20;
+    top:0;
+    bottom:0;
+    left:0;
+    width:min(86vw, 320px);
+    transform:translateX(-105%);
+    transition:transform .22s ease;
+    box-shadow:var(--shadow);
+  }
+  .sidebar.open { transform:translateX(0); }
+
+  .sidebar-close { display:flex; }
+  .sidebar-backdrop.open { display:block; }
+
+  .main {
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .topbar {
+    position:sticky;
+    top:0;
+    z-index:10;
+    padding:10px 12px;
+  }
+
+  .mobile-menu { display:inline-flex; }
+
+  .title h2 {
+    font-size:16px;
+    white-space:normal;
+    line-height:1.2;
+  }
+
+  .title small { font-size:11px; }
+
+  .point-controls {
+    display:none;
+  }
+
+  .content {
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+  }
+
+  .viewer {
+    height:auto;
+    min-height:52vh;
+    border-right:0;
+    border-bottom:1px solid var(--border);
+  }
+
+  .stage {
+    min-height:42vh;
+    padding:12px;
+  }
+
+  .stage img {
+    max-height:72vh;
+  }
+
+  .arrow {
+    width:38px;
+    height:52px;
+    font-size:22px;
+  }
+
+  .prev { left:8px; }
+  .next { right:8px; }
+
+  .thumbs {
+    height:104px;
+    padding:8px;
+  }
+  .thumb {
+    flex-basis:125px;
+    height:86px;
+  }
+
+  .text {
+    overflow:visible;
+    padding:22px 18px 90px;
+  }
+
+  .article {
+    max-width:none;
+  }
+
+  .article h1 { font-size:24px; }
+  .article h2 { font-size:20px; }
+  .article h3 { font-size:17px; }
+  .article p,
+  .article li { font-size:15px; }
+
+  .bottom-nav {
+    position:sticky;
+    bottom:0;
+    z-index:9;
+    padding:10px;
+  }
+}
+
+@media (max-width:560px) {
+  .topbar { gap:8px; }
+  .stage { min-height:38vh; }
+  .stage img { max-height:60vh; }
+
+  .bottom-nav .nav-btn {
+    font-size:13px;
+    padding:8px 10px;
+  }
+
+  .counter {
+    top:8px;
+    right:8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior:auto !important; }
+  .sidebar { transition:none; }
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <button class="icon-btn sidebar-close" id="sidebarClose" aria-label="Cerrar menú">✕</button>
+    <div class="brand">
+      <h1>Corazón · UBA</h1>
+      <p>Texto + fotogramas seleccionados de Costarelli</p>
+    </div>
+    <div class="progress"><div id="progress"></div></div>
+    <nav class="nav" id="nav"></nav>
+  </aside>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  <main class="main">
+    <div class="topbar">
+      <button class="icon-btn mobile-menu" id="menuBtn" aria-label="Abrir menú">☰</button>
+      <div class="title"><h2 id="pointTitle"></h2><small id="pointMeta"></small></div>
+      <div class="point-controls">
+        <button class="nav-btn" id="prevPointTop" type="button">← Punto anterior</button>
+        <button class="nav-btn" id="nextPointTop" type="button">Punto siguiente →</button>
+      </div>
+      <div class="kbd"><kbd>←</kbd><kbd>→</kbd> imagen · <kbd>Espacio</kbd> siguiente punto · <kbd>Shift</kbd>+<kbd>Espacio</kbd> anterior</div>
+    </div>
+    <section class="content">
+      <div class="viewer">
+        <div class="stage" id="stage">
+          <button class="arrow prev" id="prevImg" aria-label="Imagen anterior">‹</button>
+          <img id="mainImg" alt="">
+          <div class="empty" id="empty">Este punto no necesita un fotograma específico. Estudiá el texto y continuá con <b>Espacio</b>.</div>
+          <button class="arrow next" id="nextImg" aria-label="Imagen siguiente">›</button>
+          <div class="counter" id="imgCounter"></div>
+        </div>
+        <div class="thumbs" id="thumbs"></div>
+      </div>
+      <article class="text"><div class="article" id="article"></div></article>
+    </section>
+    <div class="bottom-nav">
+      <button class="nav-btn prev-point" id="prevPointBottom" type="button">← Punto anterior</button>
+      <button class="nav-btn next-point" id="nextPointBottom" type="button">Punto siguiente →</button>
+    </div>
+  </main>
+</div>
+<script>
+const DATA = [{"id": "01_Corazon_in_situ", "number": 1, "title": "Corazón in situ", "md_file": "01_Corazon_in_situ/Corazon_in_situ.md", "html": "<h1>Corazón in situ<\/h1>
+<h2>Situación<\/h2>
+<blockquote>
+<p><strong>El corazón está situado en el tórax, en el mediastino inferior, principalmente en el mediastino medio. Se encuentra entre ambos pulmones, superior al diafragma, posterior a la pared esternocondrocostal y anterior a la columna vertebral. Se dispone próximo a la línea mediana, pero se desarrolla predominantemente hacia la izquierda.<\/strong><\/p>
+<\/blockquote>
+<h2>Relaciones<\/h2>
+<blockquote>
+<p><strong>Las relaciones del corazón se establecen fundamentalmente a través del pericardio. Anteriormente se relaciona con la pared torácica anterior y con los recesos pleurales; inferiormente, con el diafragma; posteriormente, sobre todo el atrio izquierdo, con el esófago y el mediastino posterior; y lateralmente con las pleuras mediastínicas y los pulmones. A ambos lados descienden los nervios frénicos acompañados por los vasos pericardiofrénicos.<\/strong><\/p>
+<\/blockquote>
+<h2>Speech integrado<\/h2>
+<blockquote>
+<p><strong>El corazón está situado en el mediastino inferior, principalmente medio, entre ambos pulmones, sobre el diafragma, posterior a la pared esternocondrocostal y anterior a la columna vertebral, con predominio hacia la izquierda. Sus relaciones se establecen principalmente a través del pericardio: anteriormente con la pared torácica anterior y los recesos pleurales, inferiormente con el diafragma, posteriormente con el esófago y el mediastino posterior, y lateralmente con las pleuras mediastínicas y los pulmones.<\/strong><\/p>
+<\/blockquote>
+<h2>Fotogramas sugeridos – Costarelli<\/h2>
+<blockquote>
+<p><strong>Selección visual:<\/strong> 3 fotograma(s) candidato(s). No existe un máximo prefijado; se conservaron sólo vistas con una utilidad anatómica diferente. Los tiempos provienen de las transcripciones, por lo que conviene revisar la ventana y elegir el cuadro más nítido.<\/p>
+<\/blockquote>
+<h3>CIS-1 — CORAZÓN 2<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:00:12–00:00:35<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:00:20<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Situación; forma y orientación; base y vértice<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> corazón; cono; base; vértice; orientación<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema general del corazón con eje, base y vértice. Sirve como imagen de orientación espacial antes de entrar en las relaciones.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>vIqq9al_UaM<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>CIS-2 — CORAZÓN 2<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:01:36–00:02:13<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:01:48<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Relaciones anteriores; correspondencia de cavidades; grandes vasos inmediatos<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> cara esternocostal; atrio derecho; ventrículo derecho; ventrículo izquierdo; tronco pulmonar; aorta<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista anterior/esquemática con las cavidades que forman la superficie esternocostal y los grandes vasos.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>vIqq9al_UaM<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>CIS-3 — CORAZÓN 3<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:04:03–00:04:55<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:04:15<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Relaciones posteriores y laterales<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> vista posterior; atrio izquierdo; aorta; tronco pulmonar; venas pulmonares; vena cava superior; vena cava inferior<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista posterior de atlas donde se reconocen atrio izquierdo, grandes vasos y venas pulmonares; útil para reconstrucción tridimensional.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>9kTQQzIdnjk<\/code><\/p>
+<\/li>
+<\/ul>
+<h2>Bibliografía<\/h2>
+<ul>
+<li>Programa analítico 2026 – 1.ª Cátedra de Anatomía.<\/li>
+<li>Latarjet–Ruiz Liard, Anatomía Humana, 5.ª edición, tomo 2.<\/li>
+<li>Rouvière y Delmas, Anatomía Humana, tomo 2.<\/li>
+<\/ul>
+", "images": ["01_Corazon_in_situ/01_vista_anterior_relaciones_y_cavidades__video_2__00-01-48.jpg", "01_Corazon_in_situ/02_vista_posterolateral_relaciones_y_grandes_vasos__video_3__00-04-15.jpg"]}, {"id": "02_Pericardio", "number": 2, "title": "Pericardio", "md_file": "02_Pericardio/Pericardio.md", "html": "<h1>Pericardio<\/h1>
+<h2>Concepto<\/h2>
+<blockquote>
+<p><strong>El pericardio es un saco fibroseroso que envuelve al corazón, a la raíz arterial que sale de él y a las raíces venosas que llegan a él. Está constituido por un pericardio fibroso y un pericardio seroso.<\/strong><\/p>
+<\/blockquote>
+<h2>Pericardio fibroso<\/h2>
+<blockquote>
+<p><strong>El pericardio fibroso es la envoltura externa resistente del pericardio. Es una membrana fibrosa gruesa y tiene forma de cono o pirámide hueca, con base inferior aplicada sobre el diafragma y vértice superior relacionado con los grandes vasos. Su cara profunda está tapizada por la lámina parietal del pericardio seroso. Esta lámina parietal es extremadamente delgada y se encuentra unida al pericardio fibroso de manera tan íntima que no puede separarse de él por disección.<\/strong><\/p>
+<\/blockquote>
+<blockquote>
+<p><strong>Su fijación depende principalmente de su continuidad con los grandes vasos y de su adherencia al diafragma.<\/strong><\/p>
+<\/blockquote>
+<h2>Pericardio seroso<\/h2>
+<blockquote>
+<p><strong>El pericardio seroso presenta dos láminas: una parietal, extremadamente delgada y adherida íntimamente a la cara profunda del pericardio fibroso, de la que no puede separarse por disección; y una visceral o epicardio, que recubre íntimamente al corazón y parte de los grandes vasos. Entre ambas se encuentra la cavidad pericárdica.<\/strong><\/p>
+<\/blockquote>
+<h2>Cavidad pericárdica<\/h2>
+<blockquote>
+<p><strong>La cavidad pericárdica es el espacio virtual comprendido entre las láminas parietal y visceral del pericardio seroso. Contiene una pequeña cantidad de líquido seroso que facilita el deslizamiento durante los movimientos cardíacos.<\/strong><\/p>
+<\/blockquote>
+<h2>Comportamiento con los vasos coronarios<\/h2>
+<blockquote>
+<p><strong>Sobre el corazón, la lámina visceral constituye el epicardio. Se encuentra adherida al miocardio, pero se separa de éste a nivel de los vasos coronarios, que quedan situados entre el miocardio y el epicardio.<\/strong><\/p>
+<\/blockquote>
+<h2>Comportamiento con los grandes vasos<\/h2>
+<blockquote>
+<p><strong>El pericardio seroso se prolonga desde el corazón sobre los grandes vasos que entran o salen de él. A nivel de las raíces arteriales y venosas, la lámina visceral se refleja y continúa con la lámina parietal, formando la línea de reflexión pericárdica.<\/strong><\/p>
+<\/blockquote>
+<h2>Seno transverso del pericardio<\/h2>
+<blockquote>
+<p><strong>El seno transverso del pericardio es un espacio transversal situado entre la raíz arterial y el atrio izquierdo. Se ubica posterior a la aorta ascendente y al tronco pulmonar y anterior al atrio izquierdo.<\/strong><\/p>
+<\/blockquote>
+<h2>Seno oblicuo del pericardio<\/h2>
+<blockquote>
+<p><strong>El seno oblicuo del pericardio es un receso situado posterior al corazón, especialmente posterior al atrio izquierdo. Está delimitado lateralmente por las reflexiones pericárdicas relacionadas con las venas pulmonares y comunica inferiormente con el resto de la cavidad pericárdica.<\/strong><\/p>
+<\/blockquote>
+<h2>Irrigación<\/h2>
+<blockquote>
+<p><strong>La irrigación del pericardio procede principalmente de las arterias torácicas internas y pericardiofrénicas. Recibe además ramas de las arterias frénicas inferiores y pequeñas ramas bronquiales, esofágicas y mediastínicas.<\/strong><\/p>
+<\/blockquote>
+<h2>Drenaje venoso<\/h2>
+<blockquote>
+<p><strong>Las venas posteriores del pericardio drenan hacia el sistema ácigos, mientras que las venas laterales drenan hacia las venas frénicas superiores. Algunas ramas pueden terminar directamente en la vena cava superior o en las venas braquiocefálicas.<\/strong><\/p>
+<\/blockquote>
+<h2>Linfáticos<\/h2>
+<blockquote>
+<p><strong>Los vasos linfáticos del pericardio drenan hacia los nodos de las cadenas frénicas, los nodos traqueobronquiales inferiores y los nodos infradiafragmáticos.<\/strong><\/p>
+<\/blockquote>
+<h2>Inervación<\/h2>
+<blockquote>
+<p><strong>El pericardio fibroso y la lámina parietal reciben inervación del nervio frénico, de los nervios vagos y de ramos simpáticos cardíacos. La lámina visceral recibe fibras provenientes del plexo subepicárdico, derivado de los plexos pericoronarios.<\/strong><\/p>
+<\/blockquote>
+<h2>Speech integrado<\/h2>
+<blockquote>
+<p><strong>El pericardio es un saco fibroseroso formado por una porción fibrosa externa y una serosa interna. El pericardio fibroso es una membrana gruesa y resistente. La lámina parietal del pericardio seroso es extremadamente delgada y está unida a su cara profunda de manera tan íntima que no puede separarse por disección. La lámina visceral o epicardio recubre al corazón y deja los vasos coronarios entre ella y el miocardio. Sobre los grandes vasos se refleja para continuarse con la lámina parietal, formando líneas de reflexión que delimitan los senos pericárdicos. El seno transverso se encuentra posterior a la aorta ascendente y al tronco pulmonar y anterior al atrio izquierdo; el seno oblicuo se ubica posterior al atrio izquierdo. El pericardio está irrigado principalmente por ramas de las arterias torácicas internas y pericardiofrénicas; sus linfáticos drenan hacia nodos frénicos, traqueobronquiales inferiores e infradiafragmáticos, y su inervación procede del frénico, vagos y simpático.<\/strong><\/p>
+<\/blockquote>
+<h2>Fotogramas sugeridos – Costarelli<\/h2>
+<blockquote>
+<p><strong>Selección visual:<\/strong> 4 fotograma(s) candidato(s). No existe un máximo prefijado; se conservaron sólo vistas con una utilidad anatómica diferente. Los tiempos provienen de las transcripciones, por lo que conviene revisar la ventana y elegir el cuadro más nítido.<\/p>
+<\/blockquote>
+<h3>PER-1 — CORAZÓN 9<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:01:30–00:02:05<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:01:42<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Pericardio fibroso; pericardio seroso; láminas parietal y visceral; cavidad pericárdica<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> pericardio fibroso; pericardio seroso; lámina parietal; lámina visceral; cavidad pericárdica<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema de capas pericárdicas. Es el fotograma más útil para fijar qué capa está periférica y cuál recubre al corazón.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>IO0LFwB8X3E<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>PER-2 — CORAZÓN 9<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:04:21–00:05:11<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:04:35<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Reflexiones venosas; comportamiento con grandes vasos; región del seno oblicuo<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> reflexión venosa; venas pulmonares; vena cava inferior; pericardio seroso<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema posterior de la reflexión venosa. Buen candidato para ubicar el territorio del seno oblicuo respecto del atrio izquierdo y las venas pulmonares.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> La transcripción usa nomenclatura histórica/ambigua en esta secuencia. Usar el fotograma para la geometría y rotular según el MD.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>IO0LFwB8X3E<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>PER-3 — CORAZÓN 9<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:07:24–00:08:12<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:07:52<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Seno transverso del pericardio; relaciones con raíz arterial y atrios<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> seno transverso; aorta; tronco pulmonar; reflexión arterial<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema donde el espacio entre las reflexiones queda señalado; es la mejor secuencia del playlist para el seno transverso.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>IO0LFwB8X3E<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>PER-4 — CORAZÓN 9<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:08:22–00:09:15<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:09:08<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Medios de fijación del pericardio; uniones del saco fibroso con estructuras vecinas<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> pericardio fibroso; medios de fijación; ligamentos pericárdicos; diafragma<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Secuencia final del esquema de pericardio donde se marcan las bandas de fijación del saco fibroso. Útil para asociar fijación con posición tridimensional.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> El video utiliza varios epónimos. Conservar en el apunte únicamente la nomenclatura anatómica actual; si se anota un epónimo, dejarlo entre corchetes como [epónimo: …].<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>IO0LFwB8X3E<\/code><\/p>
+<\/li>
+<\/ul>
+<h2>Bibliografía<\/h2>
+<ul>
+<li>Programa analítico 2026 – 1.ª Cátedra de Anatomía.<\/li>
+<li>Latarjet–Ruiz Liard, Anatomía Humana, 5.ª edición, tomo 2.<\/li>
+<li>Rouvière y Delmas, Anatomía Humana, tomo 2.<\/li>
+<\/ul>
+", "images": ["02_Pericardio/01_capas_pericardicas__video_9__00-01-42.jpg", "02_Pericardio/02_reflexiones_venosas_y_seno_oblicuo__video_9__00-04-35.jpg", "02_Pericardio/03_seno_transverso__video_9__00-07-52.jpg", "02_Pericardio/04_medios_de_fijacion__video_9__00-09-08.jpg"]}, {"id": "03_Configuracion_externa", "number": 3, "title": "Configuración externa", "md_file": "03_Configuracion_externa/Corazon_configuracion_externa.md", "html": "<h1>Corazón – Configuración externa<\/h1>
+<h2>1. Forma general y orientación<\/h2>
+<blockquote>
+<p><strong>El corazón tiene forma de pirámide triangular. Su eje mayor se orienta oblicuamente en sentido anterior, inferior e izquierdo. La base es posterior y se orienta también hacia la derecha; el vértice se dirige anterior, inferior e izquierdo.<\/strong><\/p>
+<\/blockquote>
+<blockquote>
+<p><strong>En su configuración externa se describen cuatro caras, tres bordes, una base y un vértice.<\/strong><\/p>
+<\/blockquote>
+<h2>2. Caras<\/h2>
+<h3>Cara anterior o esternocostal<\/h3>
+<p>Presenta orientación predominantemente <strong>anterior<\/strong>. Está formada principalmente por el <strong>ventrículo derecho<\/strong>, con menor participación del ventrículo izquierdo y del sector atrial superior.<\/p>
+<h3>Cara inferior o diafragmática<\/h3>
+<p>Presenta orientación <strong>inferior<\/strong> y se aplica sobre el diafragma. Tiene forma triangular. Está formada principalmente por el <strong>ventrículo izquierdo<\/strong>, con menor participación del ventrículo derecho y una porción atrial posterior.<\/p>
+<h3>Cara pulmonar izquierda<\/h3>
+<p>Presenta orientación <strong>lateral izquierda<\/strong>. Está formada fundamentalmente por el <strong>ventrículo izquierdo<\/strong> y, en su sector posterosuperior, por el <strong>atrio izquierdo<\/strong> y su orejuela.<\/p>
+<h3>Cara pulmonar derecha<\/h3>
+<p>Corresponde principalmente a la porción convexa de la pared lateral del <strong>atrio derecho<\/strong> y se orienta <strong>lateralmente hacia la derecha<\/strong>.<\/p>
+<h2>3. Bordes<\/h2>
+<p>Se describen <strong>tres bordes<\/strong>:<\/p>
+<ul>
+<li><strong>Borde derecho:<\/strong> separa la <strong>cara anterior<\/strong> de la <strong>cara inferior<\/strong>. Es neto y relativamente cortante.<\/li>
+<li><strong>Borde superior:<\/strong> separa la <strong>cara anterior<\/strong> de la <strong>cara pulmonar izquierda<\/strong>. Es redondeado y poco marcado.<\/li>
+<li><strong>Borde izquierdo:<\/strong> separa la <strong>cara pulmonar izquierda<\/strong> de la <strong>cara inferior<\/strong>. También es redondeado y poco marcado.<\/li>
+<li>La <strong>cara pulmonar derecha no presenta un borde definido que la separe de la cara anterior<\/strong>.<\/li>
+<\/ul>
+<h2>4. Base<\/h2>
+<blockquote>
+<p><strong>La base del corazón es una verdadera cara posterior. Está formada por las caras posteriores de ambos atrios, con predominio del atrio izquierdo. Es ligeramente convexa en sentido transversal y vertical.<\/strong><\/p>
+<\/blockquote>
+<p>El <strong>surco interatrial posterior<\/strong> la divide en dos sectores desiguales:<\/p>
+<ul>
+<li><strong>Sector derecho:<\/strong> corresponde a la cara posterior del atrio derecho. Se relaciona superiormente con el orificio de la vena cava superior e inferiormente con el orificio de la vena cava inferior.<\/li>
+<li><strong>Sector izquierdo:<\/strong> corresponde principalmente a la cara posterior del atrio izquierdo y está marcado por la llegada de las <strong>cuatro venas pulmonares<\/strong>.<\/li>
+<\/ul>
+<blockquote>
+<p><strong>La base no corresponde a la salida de los grandes vasos: anatómicamente es la cara posterior predominantemente atrial del corazón.<\/strong><\/p>
+<\/blockquote>
+<h2>5. Vértice<\/h2>
+<blockquote>
+<p><strong>El vértice es redondeado y pertenece en su totalidad al ventrículo izquierdo. Se dirige anterior, inferior e izquierdo.<\/strong><\/p>
+<\/blockquote>
+<p>Los surcos interventriculares anterior y posterior se continúan entre sí aproximadamente <strong>1 a 2 cm a la derecha del vértice<\/strong>, formando la escotadura del vértice.<\/p>
+<h2>6. Raíz vascular<\/h2>
+<p>Comprende:<\/p>
+<h3>Componentes arteriales<\/h3>
+<ul>
+<li>aorta;<\/li>
+<li>tronco pulmonar.<\/li>
+<\/ul>
+<h3>Componentes venosos<\/h3>
+<ul>
+<li>vena cava superior;<\/li>
+<li>vena cava inferior;<\/li>
+<li>cuatro venas pulmonares.<\/li>
+<\/ul>
+<p>Relaciones principales:<\/p>
+<ul>
+<li>el tronco pulmonar se sitúa <strong>anterior y a la izquierda<\/strong> de la aorta en su origen;<\/li>
+<li>la aorta ascendente se sitúa <strong>posterior y a la derecha<\/strong> respecto del tronco pulmonar;<\/li>
+<li>las venas pulmonares ocupan predominantemente el sector <strong>posterior<\/strong> de la base;<\/li>
+<li>las venas cavas se relacionan con el sector <strong>derecho<\/strong> del atrio derecho.<\/li>
+<\/ul>
+<h2>7. Surco coronario<\/h2>
+<blockquote>
+<p><strong>El surco coronario separa externamente el conjunto de los atrios del conjunto de los ventrículos.<\/strong><\/p>
+<\/blockquote>
+<h3>Contenido relevante<\/h3>
+<ul>
+<li>En su porción derecha se relaciona con la <strong>arteria coronaria derecha<\/strong>.<\/li>
+<li>En su porción izquierda se relaciona con la <strong>rama circunfleja de la arteria coronaria izquierda<\/strong> y con la <strong>vena cardíaca magna<\/strong>.<\/li>
+<li>En la región posterior, la vena cardíaca magna continúa con el <strong>seno coronario<\/strong>.<\/li>
+<\/ul>
+<h2>8. Surco interventricular anterior<\/h2>
+<blockquote>
+<p><strong>Marca externamente la separación entre ambos ventrículos sobre la cara anterior.<\/strong><\/p>
+<\/blockquote>
+<p>Contiene principalmente:<\/p>
+<ul>
+<li><strong>rama interventricular anterior<\/strong> de la arteria coronaria izquierda;<\/li>
+<li><strong>vena interventricular anterior<\/strong>, que se continúa con la vena cardíaca magna.<\/li>
+<\/ul>
+<h2>9. Surco interventricular posterior<\/h2>
+<blockquote>
+<p><strong>Marca externamente la separación entre ambos ventrículos sobre la cara inferior.<\/strong><\/p>
+<\/blockquote>
+<p>Contiene principalmente:<\/p>
+<ul>
+<li><strong>rama interventricular posterior<\/strong>;<\/li>
+<li><strong>vena cardíaca media<\/strong>, también denominada vena interventricular posterior.<\/li>
+<\/ul>
+<h2>10. Correspondencia externa con las cavidades<\/h2>
+<ul>
+<li><strong>Atrio derecho:<\/strong> sector derecho y mayor parte de la cara pulmonar derecha.<\/li>
+<li><strong>Atrio izquierdo:<\/strong> principalmente la base y el sector posterosuperior de la cara pulmonar izquierda.<\/li>
+<li><strong>Ventrículo derecho:<\/strong> mayor parte de la cara anterior.<\/li>
+<li><strong>Ventrículo izquierdo:<\/strong> mayor parte de la cara inferior y de la cara pulmonar izquierda; forma además todo el vértice.<\/li>
+<\/ul>
+<h2>11. Orejuela derecha<\/h2>
+<blockquote>
+<p><strong>Es una prolongación anterior del atrio derecho, relacionada con el sector derecho de la aorta ascendente.<\/strong><\/p>
+<\/blockquote>
+<h2>12. Orejuela izquierda<\/h2>
+<blockquote>
+<p><strong>Es una prolongación anterolateral del atrio izquierdo, relacionada con el sector izquierdo del tronco pulmonar y con la cara pulmonar izquierda.<\/strong><\/p>
+<\/blockquote>
+<h2>Speech integrado<\/h2>
+<blockquote>
+<p><strong>El corazón tiene forma de pirámide triangular y su eje mayor se orienta anterior, inferior e izquierdo. Presenta cuatro caras, tres bordes, una base y un vértice. La cara anterior corresponde principalmente al ventrículo derecho; la cara inferior, principalmente al ventrículo izquierdo; la cara pulmonar izquierda, al ventrículo izquierdo y al atrio izquierdo; y la cara pulmonar derecha, principalmente al atrio derecho. El borde derecho separa las caras anterior e inferior; el borde superior separa la cara anterior de la pulmonar izquierda; y el borde izquierdo separa la cara pulmonar izquierda de la inferior. La base es una verdadera cara posterior, formada por ambos atrios con predominio del izquierdo, y recibe las cuatro venas pulmonares en su sector izquierdo y las venas cavas en su sector derecho. El vértice se dirige anterior, inferior e izquierdo y pertenece por completo al ventrículo izquierdo. El surco coronario separa atrios y ventrículos; los surcos interventriculares anterior y posterior marcan externamente la separación entre ambos ventrículos y contienen los vasos interventriculares correspondientes.<\/strong><\/p>
+<\/blockquote>
+<h2>Fotogramas sugeridos – Costarelli<\/h2>
+<blockquote>
+<p><strong>Selección visual:<\/strong> 6 fotograma(s) candidato(s). No existe un máximo prefijado; se conservaron sólo vistas con una utilidad anatómica diferente. Los tiempos provienen de las transcripciones, por lo que conviene revisar la ventana y elegir el cuadro más nítido.<\/p>
+<\/blockquote>
+<h3>CE-1 — CORAZÓN 2<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:01:36–00:03:12<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:02:05<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Cara esternocostal; surco coronario; surco interventricular anterior; correspondencia externa de cavidades; orejuelas<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> cara esternocostal; surco coronario; surco interventricular anterior; atrio derecho; ventrículo derecho; ventrículo izquierdo; orejuelas<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista anterior con los principales surcos y la correspondencia superficial de las cavidades.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>vIqq9al_UaM<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>CE-2 — CORAZÓN 3<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:01:54–00:03:07<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:02:25<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Cara pulmonar izquierda; ventrículo izquierdo; atrio izquierdo; grandes vasos<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> cara pulmonar izquierda; ventrículo izquierdo; atrio izquierdo; venas pulmonares; aorta<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista lateral izquierda; muestra qué cavidad domina esta cara y la posición relativa del atrio izquierdo.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>9kTQQzIdnjk<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>CE-3 — CORAZÓN 4<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:03:44–00:05:15<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:03:55<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Base; cara posterior; venas pulmonares; venas cavas; referencia para cara diafragmática<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> vista posterior; base; atrio izquierdo; venas pulmonares; vena cava superior; vena cava inferior<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista posterior con la base cardíaca y sus grandes conexiones venosas. Si necesitás específicamente la cara diafragmática, revisar como alternativa ~00:04:45–00:05:05 del mismo video.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>I7AAR2PIOOk<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>CE-4 — CORAZÓN 3<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:01:54–00:02:08<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:01:58<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Vista lateral derecha; relación espacial entre atrios, ventrículos y grandes vasos<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> vista lateral derecha; atrio derecho; atrio izquierdo; ventrículo derecho; ventrículo izquierdo<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista lateral derecha completa antes del cambio a la vista lateral izquierda. Muy útil para reconocer un preparado orientado desde el lado derecho.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>9kTQQzIdnjk<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>CE-5 — CORAZÓN 4<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:04:22–00:05:00<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:04:45<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Cara inferior o diafragmática; correspondencia superficial de ventrículos, atrio derecho y vena cava inferior<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> cara inferior; cara diafragmática; ventrículo derecho; ventrículo izquierdo; vena cava inferior<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista inferior del corazón. Aporta un reparo que no queda resuelto por una fotografía anterior o posterior.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>I7AAR2PIOOk<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>CE-6 — CORAZÓN 4<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:05:01–00:06:05<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:05:38<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Vista superior; relación entre orificios arteriales y atrioventriculares; orientación de grandes vasos<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> vista superior; aorta; tronco pulmonar; válvula pulmonar; válvula aórtica; atrios<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista superior que muestra el cruce espacial entre aorta y tronco pulmonar y permite ubicar los orificios valvulares desde superior.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>I7AAR2PIOOk<\/code><\/p>
+<\/li>
+<\/ul>
+<h2>Bibliografía<\/h2>
+<ul>
+<li>Programa analítico 2026 – 1.ª Cátedra de Anatomía, UBA.<\/li>
+<li>Latarjet–Ruiz Liard, Anatomía Humana, 5.ª edición, tomo 2.<\/li>
+<li>Rouvière y Delmas, Anatomía Humana, tomo 2.<\/li>
+<\/ul>
+", "images": ["03_Configuracion_externa/01_cara_esternocostal__video_2__00-02-05.jpg", "03_Configuracion_externa/02_cara_pulmonar_izquierda__video_3__00-02-25.jpg", "03_Configuracion_externa/03_base_y_cara_posterior__video_4__00-03-55.jpg", "03_Configuracion_externa/04_cara_pulmonar_derecha__video_3__00-01-58.jpg", "03_Configuracion_externa/05_cara_diafragmatica__video_4__00-04-45.jpg", "03_Configuracion_externa/06_vista_superior_orificios_y_grandes_vasos__video_4__00-05-38.jpg"]}, {"id": "04_Trabeculas_carnosas", "number": 4, "title": "Trabéculas carnosas", "md_file": "04_Trabeculas_carnosas/00_Trabeculas_carnosas_generalidades.md", "html": "<h1>Corazón – Trabéculas carnosas: generalidades<\/h1>
+<h2>Concepto<\/h2>
+<blockquote>
+<p><strong>Las paredes ventriculares presentan relieves musculares denominados trabéculas carnosas. Rouvière las clasifica en tres órdenes según su relación con la pared ventricular.<\/strong><\/p>
+<\/blockquote>
+<h2>Primer orden: músculos papilares<\/h2>
+<blockquote>
+<p><strong>Son relieves musculares unidos por su base a la pared ventricular y con un vértice libre del que se originan cuerdas tendinosas destinadas a las valvas atrioventriculares.<\/strong><\/p>
+<\/blockquote>
+<h2>Segundo orden<\/h2>
+<blockquote>
+<p><strong>Se fijan a la pared ventricular por sus dos extremos y permanecen libres en su segmento intermedio.<\/strong><\/p>
+<\/blockquote>
+<p>La <strong>trabécula septomarginal<\/strong> del ventrículo derecho pertenece a este grupo.<\/p>
+<h2>Tercer orden<\/h2>
+<blockquote>
+<p><strong>Se adhieren a la pared ventricular a lo largo de toda su extensión y constituyen simples relieves musculares de la superficie interna ventricular.<\/strong><\/p>
+<\/blockquote>
+<h2>No confundir con los órdenes de las cuerdas tendinosas<\/h2>
+<p>Las <strong>cuerdas tendinosas<\/strong> poseen otra clasificación distinta:<\/p>
+<ol>
+<li>primer orden: inserción en el borde adherente de la valva;<\/li>
+<li>segundo orden: inserción en la cara parietal;<\/li>
+<li>tercer orden: inserción en el borde libre.<\/li>
+<\/ol>
+<h2>Speech<\/h2>
+<blockquote>
+<p><strong>Las trabéculas carnosas ventriculares son de tres órdenes. Las de primer orden son los músculos papilares, unidos por su base a la pared y relacionados mediante cuerdas tendinosas con las válvulas atrioventriculares. Las de segundo orden se fijan a la pared por ambos extremos y quedan libres en su porción intermedia; la trabécula septomarginal es un ejemplo. Las de tercer orden permanecen adheridas a la pared en toda su longitud. Esta clasificación no debe confundirse con los tres órdenes de cuerdas tendinosas.<\/strong><\/p>
+<\/blockquote>
+<h2>Fotogramas sugeridos – Costarelli<\/h2>
+<blockquote>
+<p><strong>Selección visual:<\/strong> 2 fotograma(s) candidato(s). No existe un máximo prefijado; se conservaron sólo vistas con una utilidad anatómica diferente. Los tiempos provienen de las transcripciones, por lo que conviene revisar la ventana y elegir el cuadro más nítido.<\/p>
+<\/blockquote>
+<h3>TC-1 — CORAZÓN 7<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:00:15–00:00:55<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:00:45<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Trabéculas carnosas de primer, segundo y tercer orden<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> trabéculas carnosas; músculos papilares; primer orden; segundo orden; tercer orden<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema comparativo de los tres patrones morfológicos: músculo papilar, puente muscular y relieve adherido a la pared.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> La narración utiliza terminología no actual al llamar “músculos papilares” a los tres órdenes. Rotular según el MD: trabéculas carnosas.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>qxI8DIB5bRg<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>TC-2 — CORAZÓN 7<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:03:36–00:04:03<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:03:48<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Ejemplo de trabécula carnosa de segundo orden; trabécula septomarginal<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> trabécula septomarginal; puente muscular; septo interventricular; músculo papilar anterior<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Ejemplo concreto de una trabécula de segundo orden atravesando la cavidad del ventrículo derecho.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> El video emplea un nombre histórico para esta estructura; en las notas usar únicamente trabécula septomarginal.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>qxI8DIB5bRg<\/code><\/p>
+<\/li>
+<\/ul>
+<h2>Bibliografía<\/h2>
+<ul>
+<li>Latarjet–Ruiz Liard, Anatomía Humana, 5.ª edición, tomo 2.<\/li>
+<li>Rouvière y Delmas, Anatomía Humana, tomo 2.<\/li>
+<\/ul>
+", "images": ["04_Trabeculas_carnosas/01_tres_ordenes_de_trabeculas_carnosas__video_7__00-00-45.jpg"]}, {"id": "05_Atrio_derecho", "number": 5, "title": "Atrio derecho", "md_file": "05_Atrio_derecho/01_Atrio_derecho.md", "html": "<h1>Corazón – Atrio derecho<\/h1>
+<h2>1. Presentación del atrio derecho<\/h2>
+<blockquote>
+<p><strong>El atrio derecho es una cavidad irregular de paredes delgadas que recibe sangre venosa sistémica y del propio corazón. Presenta los orificios de las venas cavas superior e inferior, del seno coronario y de pequeñas venas cardíacas.<\/strong><\/p>
+<\/blockquote>
+<h2>2. Surco terminal, cresta terminal y músculos pectíneos<\/h2>
+<blockquote>
+<p><strong>El surco terminal es un surco de la superficie externa del atrio derecho, casi vertical, ligeramente arqueado y cóncavo hacia la izquierda. Marca externamente el límite entre la porción posterior del atrio incorporada a partir del seno venoso y la porción derivada del atrio primitivo. Su correspondencia interna es la cresta terminal.<\/strong><\/p>
+<\/blockquote>
+<blockquote>
+<p><strong>La cresta terminal es un relieve muscular vertical de la pared interna del atrio derecho. Separa el seno de las venas cavas, de pared lisa y situado posteriormente, del territorio pectíneo, situado anteriormente. Los músculos pectíneos son relieves musculares dirigidos predominantemente en sentido anteroposterior y se continúan hacia la orejuela derecha.<\/strong><\/p>
+<\/blockquote>
+<h3>Para no confundirlos<\/h3>
+<ul>
+<li><strong>Surco terminal = externo.<\/strong><\/li>
+<li><strong>Cresta terminal = interno.<\/strong><\/li>
+<li>Ambos marcan aproximadamente el límite entre dos territorios de distinto origen embrionario: <strong>seno venoso incorporado<\/strong> y <strong>atrio primitivo<\/strong>.<\/li>
+<\/ul>
+<h3>Significado<\/h3>
+<ul>
+<li><p><strong>Anatómico:<\/strong> la cresta terminal separa una porción lisa, sinusal, de una porción trabeculada, pectínea.<\/p>
+<\/li>
+<li><p><strong>Embriológico:<\/strong> separa territorios de distinto origen: la porción sinusal incorporada y la porción derivada del atrio primitivo.<\/p>
+<\/li>
+<li><p><strong>Funcional:<\/strong> los músculos pectíneos forman parte del miocardio contráctil atrial.<\/p>
+<\/li>
+<\/ul>
+<h2>3. Orejuela derecha<\/h2>
+<blockquote>
+<p><strong>La orejuela derecha es una prolongación del atrio derecho. Su interior presenta columnas musculares entrecruzadas y se continúa con el territorio de los músculos pectíneos.<\/strong><\/p>
+<\/blockquote>
+<p>Embriológicamente corresponde principalmente a la porción derivada del atrio primitivo.<\/p>
+<h2>4. Orificio de la vena cava superior<\/h2>
+<blockquote>
+<p><strong>El orificio de la vena cava superior se encuentra en la pared superior del atrio derecho. Presenta una orientación oblicua y carece de una válvula funcional.<\/strong><\/p>
+<\/blockquote>
+<p>Su función es permitir el ingreso al atrio derecho de la sangre proveniente del territorio supradiafragmático.<\/p>
+<h2>5. Orificio de la vena cava inferior<\/h2>
+<blockquote>
+<p><strong>El orificio de la vena cava inferior se encuentra en la pared inferior del atrio derecho. Está parcialmente rodeado por la válvula de la vena cava inferior, que en el adulto es incompleta y carece de valor funcional apreciable.<\/strong><\/p>
+<\/blockquote>
+<h3>Significado embriológico<\/h3>
+<p>Durante la vida fetal, la válvula de la vena cava inferior participa en la orientación de la corriente sanguínea hacia el foramen oval.<\/p>
+<h2>6. Orificio del seno coronario<\/h2>
+<blockquote>
+<p><strong>El orificio del seno coronario se localiza en la región inferomedial del atrio derecho. Es circular y está limitado por la válvula del seno coronario.<\/strong><\/p>
+<\/blockquote>
+<p>Funcionalmente permite el retorno al atrio derecho de gran parte de la sangre venosa del propio corazón.<\/p>
+<h2>7. Septo interatrial, fosa oval y limbo<\/h2>
+<blockquote>
+<p><strong>El septo interatrial es la pared que separa el atrio derecho del atrio izquierdo. Está orientado oblicuamente, por lo que el atrio izquierdo no se encuentra solamente a la izquierda del derecho, sino también en una posición más posterior. Desde el atrio derecho, el septo se reconoce como una pared posteromedial.<\/strong><\/p>
+<\/blockquote>
+<blockquote>
+<p><strong>En su centro se encuentra la fosa oval, una depresión muy delgada que corresponde al sector más fino del septo. Está circunscrita por el limbo de la fosa oval, un reborde más grueso que puede ser incompleto, sobre todo en su porción anteroinferior.<\/strong><\/p>
+<\/blockquote>
+<h3>Significado<\/h3>
+<ul>
+<li><p><strong>Anatómico:<\/strong> constituye la separación entre ambas cavidades atriales.<\/p>
+<\/li>
+<li><p><strong>Embriológico:<\/strong> la fosa oval representa el vestigio del foramen oval fetal; el limbo corresponde al reborde que circunscribe esa región.<\/p>
+<\/li>
+<li><p><strong>Funcional fetal:<\/strong> el foramen oval permitía el pasaje de sangre del atrio derecho al atrio izquierdo.<\/p>
+<\/li>
+<li><p><strong>En el adulto:<\/strong> normalmente queda cerrado; la persistencia de comunicaciones en esta región puede dar lugar a comunicaciones interatriales.<\/p>
+<\/li>
+<\/ul>
+<h3>Cierre del foramen oval al nacimiento<\/h3>
+<blockquote>
+<p><strong>Durante la vida fetal, la corriente sanguínea mantiene la válvula del foramen oval desplazada hacia el atrio izquierdo y permite el cortocircuito de derecha a izquierda. Al nacimiento, cuando se establece la respiración pulmonar, la presión del atrio izquierdo supera a la del atrio derecho. Esto aplica la prolongación del septum primum contra la cara izquierda del septum secundum y produce el cierre funcional del foramen oval; posteriormente puede producirse su soldadura anatómica.<\/strong><\/p>
+<\/blockquote>
+<p><strong>Importante:<\/strong> el corazón fetal ya late mucho antes del nacimiento. Lo que cambia con las primeras respiraciones no es que el corazón “empiece a latir”, sino el régimen circulatorio: comienza la circulación pulmonar efectiva y se invierte el gradiente de presión entre los atrios.<\/p>
+<h2>8. Orificio atrioventricular derecho y válvula tricúspide<\/h2>
+<blockquote>
+<p><strong>El orificio atrioventricular derecho comunica el atrio derecho con el ventrículo derecho y está provisto de la válvula atrioventricular derecha o tricúspide. El aparato tricuspídeo comprende el anillo fibroso, tres valvas principales, las cuerdas tendinosas y los músculos papilares. Funcionalmente asegura la apertura del orificio durante la diástole y su cierre durante la sístole.<\/strong><\/p>
+<\/blockquote>
+<h3>Valvas de la tricúspide<\/h3>
+<p>La válvula posee <strong>tres valvas principales<\/strong>, relacionadas con las paredes del ventrículo:<\/p>
+<ul>
+<li><strong>Valva anterior:<\/strong> es la más amplia; se inserta en la porción anterior del anillo.<\/li>
+<li><strong>Valva posterior:<\/strong> es menor y se inserta en la porción posterior e inferior del anillo.<\/li>
+<li><strong>Valva septal:<\/strong> es pequeña y se inserta sobre el septo interventricular, en relación con la porción membranosa.<\/li>
+<\/ul>
+<p>Entre ellas existen <strong>tres comisuras<\/strong>: lateral, posteromedial y anteromedial.<\/p>
+<h3>Cuerdas tendinosas y músculos papilares<\/h3>
+<ul>
+<li>El <strong>músculo papilar anterior<\/strong> envía la mayor parte de sus cuerdas a la <strong>valva anterior<\/strong> y algunas a la <strong>valva posterior<\/strong>.<\/li>
+<li>La pared inferior origina <strong>uno o dos músculos papilares<\/strong>, cuyas cuerdas llegan a la <strong>valva posterior<\/strong> y al extremo inferior de la <strong>valva septal<\/strong>.<\/li>
+<li>La mayor parte de las cuerdas de la <strong>valva septal<\/strong> nace de la pared septal, directamente o mediante pequeños músculos papilares.<\/li>
+<li>Uno de los <strong>músculos papilares septales<\/strong>, constante y situado próximo al cono arterial, emite <strong>cinco o seis cuerdas tendinosas<\/strong>, que terminan en la porción superior de la valva septal y, principalmente, en la porción medial de la valva anterior.<\/li>
+<\/ul>
+<h3>Órdenes de las cuerdas<\/h3>
+<p>Según su sitio de inserción, las cuerdas se clasifican en:<\/p>
+<ol>
+<li><strong>Primer orden:<\/strong> borde adherente.<\/li>
+<li><strong>Segundo orden:<\/strong> cara parietal de la valva.<\/li>
+<li><strong>Tercer orden:<\/strong> borde libre.<\/li>
+<\/ol>
+<p><strong>No existe en Rouvière ni en Latarjet un número total fijo de cuerdas para cada valva.<\/strong> El dato numérico constante que sí describe Rouvière es el de las <strong>cinco o seis cuerdas del músculo papilar septal constante situado próximo al cono arterial<\/strong>.<\/p>
+<h2>Speech integrado<\/h2>
+<blockquote>
+<p><strong>El atrio derecho es una cavidad de paredes delgadas que recibe las venas cavas superior e inferior y el seno coronario. Su superficie interna presenta una porción sinusal lisa y una porción pectínea, separadas por la cresta terminal, que representa internamente al surco terminal. Los músculos pectíneos ocupan la pared anterolateral y se continúan hacia la orejuela derecha. En la pared superior se encuentra el orificio de la vena cava superior; en la inferior, el de la vena cava inferior, parcialmente rodeado por la válvula de la vena cava inferior, y medialmente el orificio del seno coronario con su válvula del seno coronario. La pared posteromedial corresponde al septo interatrial, que separa ambos atrios y presenta en su centro la fosa oval, una depresión muy delgada circunscrita por el limbo de la fosa oval; esta región representa el vestigio del foramen oval fetal. Finalmente, el atrio se comunica con el ventrículo derecho por el orificio atrioventricular derecho, provisto de la válvula tricúspide.<\/strong><\/p>
+<\/blockquote>
+<h2>Fotogramas sugeridos – Costarelli<\/h2>
+<blockquote>
+<p><strong>Selección visual:<\/strong> 4 fotograma(s) candidato(s). No existe un máximo prefijado; se conservaron sólo vistas con una utilidad anatómica diferente. Los tiempos provienen de las transcripciones, por lo que conviene revisar la ventana y elegir el cuadro más nítido.<\/p>
+<\/blockquote>
+<h3>AD-1 — CORAZÓN 5<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:00:40–00:01:20<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:00:52<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Presentación; paredes; cresta terminal; músculos pectíneos; orificios de vena cava superior e inferior<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> atrio derecho; pared medial; pared lateral; pared posterior; cresta terminal; vena cava superior; vena cava inferior<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Atrio derecho abierto/desplegado con orientación de paredes y cresta terminal.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>IFAwkcKeRGg<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>AD-2 — CORAZÓN 5<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:03:55–00:04:39<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:04:05<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Septo interatrial; fosa oval; limbo; región del orificio de la vena cava inferior<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> fosa oval; septo interatrial; limbo; vena cava inferior<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista interna de la pared septal con la fosa oval y sus relieves vecinos.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> El audio usa varios epónimos y nomenclatura histórica; tomar sólo la disposición visual y rotular con los términos del MD.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>IFAwkcKeRGg<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>AD-3 — CORAZÓN 7<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:02:55–00:03:36<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:03:28<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Orificio atrioventricular derecho; válvula tricúspide; valvas; cuerdas tendinosas; músculos papilares<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> válvula tricúspide; valva anterior; valva posterior; valva septal; cuerdas tendinosas; músculos papilares<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Aparato valvular derecho dentro del ventrículo derecho; útil para relacionar la válvula vista desde el atrio con su aparato subvalvular.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> No usar la distribución de cuerdas narrada en el video como teoría: conservar la distribución oficial del MD.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>qxI8DIB5bRg<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>AD-4 — CORAZÓN 5<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:04:35–00:05:10<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:04:45<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Orificio del seno coronario; válvula del seno coronario; relación con pared medial del atrio derecho<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> seno coronario; orificio del seno coronario; válvula del seno coronario; atrio derecho<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista interna enfocada en la desembocadura del seno coronario en el atrio derecho, útil para reconocer ese orificio en un preparado.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> El video nombra la válvula mediante un epónimo. En el apunte mantener “válvula del seno coronario”; el epónimo, si se conserva, sólo entre corchetes.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>IFAwkcKeRGg<\/code><\/p>
+<\/li>
+<\/ul>
+<h2>Bibliografía<\/h2>
+<ul>
+<li><p>Programa analítico 2026 – 1.ª Cátedra de Anatomía, UBA.<\/p>
+<\/li>
+<li><p>Latarjet–Ruiz Liard, Anatomía Humana, 5.ª edición, tomo 2.<\/p>
+<\/li>
+<li><p>Rouvière y Delmas, Anatomía Humana, tomo 2.<\/p>
+<\/li>
+<\/ul>
+", "images": ["05_Atrio_derecho/01_septo_interatrial_fosa_oval_cresta_terminal__video_5__00-04-05.jpg", "05_Atrio_derecho/02_orificio_del_seno_coronario__video_5__00-04-45.jpg"]}, {"id": "06_Ventriculo_derecho", "number": 6, "title": "Ventrículo derecho", "md_file": "06_Ventriculo_derecho/02_Corazon_Ventriculo_derecho.md", "html": "<h1>Corazón – Ventrículo derecho<\/h1>
+<h2>Programa<\/h2>
+<ul>
+<li>Orificio atrioventricular derecho.<\/li>
+<li>Aparato de la válvula atrioventricular derecha.<\/li>
+<li>Septo interventricular: porciones muscular y membranosa.<\/li>
+<li>Septo atrioventricular.<\/li>
+<li>Cresta supraventricular.<\/li>
+<li>Porciones infracrestínea y supracrestínea.<\/li>
+<li>Trabécula septomarginal.<\/li>
+<li>Cono arterioso.<\/li>
+<li>Válvula pulmonar.<\/li>
+<li>Cámaras de entrada y salida.<\/li>
+<li>Significado anatómico, funcional y embriológico.<\/li>
+<\/ul>
+<h2>1. Presentación<\/h2>
+<blockquote>
+<p><strong>El ventrículo derecho tiene forma de pirámide triangular. Presenta paredes anterior, inferior y medial, un vértice y una base. Rouvière describe un espesor aproximado de 5 mm para sus paredes.<\/strong><\/p>
+<\/blockquote>
+<p>La pared medial corresponde al <strong>septo interventricular<\/strong>. En sus paredes se encuentran numerosas trabéculas carnosas.<\/p>
+<h2>2. Orificio atrioventricular derecho y aparato valvular<\/h2>
+<blockquote>
+<p><strong>El orificio atrioventricular derecho comunica el atrio derecho con el ventrículo derecho y está provisto de la válvula atrioventricular derecha o tricúspide. El aparato valvular comprende anillo fibroso, valvas, cuerdas tendinosas y músculos papilares.<\/strong><\/p>
+<\/blockquote>
+<h3>Valvas<\/h3>
+<p>Posee tres valvas principales:<\/p>
+<ul>
+<li><strong>anterior:<\/strong> la más extensa;<\/li>
+<li><strong>posterior:<\/strong> de menor tamaño;<\/li>
+<li><strong>septal:<\/strong> relacionada con el septo interventricular y con su porción membranosa.<\/li>
+<\/ul>
+<p>Rouvière describe además pequeñas valvas accesorias inconstantes.<\/p>
+<h3>Músculos papilares y cuerdas<\/h3>
+<ul>
+<li>El <strong>músculo papilar anterior<\/strong> envía cuerdas principalmente a la valva anterior y también a la posterior.<\/li>
+<li>Uno o dos <strong>músculos papilares posteriores<\/strong> relacionados con la pared inferior envían cuerdas a la valva posterior y al extremo inferior de la valva septal.<\/li>
+<li>La mayor parte de las cuerdas de la <strong>valva septal<\/strong> procede directamente de la pared septal o de pequeños músculos papilares septales.<\/li>
+<li>Uno de los <strong>músculos papilares septales<\/strong>, constante y situado próximo al cono arterial, emite <strong>cinco o seis cuerdas tendinosas<\/strong> hacia la porción superior de la valva septal y principalmente hacia la porción medial de la valva anterior.<\/li>
+<\/ul>
+<h3>Órdenes de las cuerdas tendinosas<\/h3>
+<ol>
+<li><strong>Primer orden:<\/strong> borde adherente de la valva.<\/li>
+<li><strong>Segundo orden:<\/strong> cara parietal.<\/li>
+<li><strong>Tercer orden:<\/strong> borde libre.<\/li>
+<\/ol>
+<blockquote>
+<p><strong>Latarjet y Rouvière no establecen un número total fijo de cuerdas para cada valva. El dato numérico específico que Rouvière individualiza es el de cinco o seis cuerdas procedentes del músculo papilar septal constante situado próximo al cono arterial.<\/strong><\/p>
+<\/blockquote>
+<h2>3. Septo interventricular<\/h2>
+<blockquote>
+<p><strong>Separa ambos ventrículos y presenta una amplia porción muscular y una pequeña porción membranosa.<\/strong><\/p>
+<\/blockquote>
+<ul>
+<li><strong>Anatómico:<\/strong> separa las cavidades ventriculares.<\/li>
+<li><strong>Funcional:<\/strong> mantiene separadas las corrientes de ambos ventrículos y se relaciona con el sistema de conducción.<\/li>
+<li><strong>Embriológico:<\/strong> Rouvière describe una formación compleja en la que intervienen el septo muscular inferior y componentes del septo atrioventricular y de la tabicación de la vía de salida. La bibliografía oficial no permite reducir toda la porción membranosa a un único origen.<\/li>
+<\/ul>
+<h2>4. Septo atrioventricular<\/h2>
+<blockquote>
+<p><strong>Debido al diferente nivel de inserción de las válvulas atrioventriculares, existe una región septal que separa directamente el atrio derecho del ventrículo izquierdo.<\/strong><\/p>
+<\/blockquote>
+<p>Se relaciona estrechamente con el fascículo atrioventricular del sistema de conducción.<\/p>
+<h2>5. Cresta supraventricular<\/h2>
+<blockquote>
+<p><strong>Es un relieve muscular de la porción superior del ventrículo derecho que se origina en el septo interventricular y se prolonga hacia la pared anterior. Participa en la separación topográfica entre la región de entrada y la región de salida.<\/strong><\/p>
+<\/blockquote>
+<p><strong>Embriología:<\/strong> la bibliografía oficial describe su anatomía dentro de la morfología ventricular, pero <strong>no individualiza un origen embrionario propio de la cresta supraventricular<\/strong>.<\/p>
+<h2>6. Porciones infracrestínea y supracrestínea<\/h2>
+<blockquote>
+<p><strong>La cresta supraventricular permite reconocer una región infracrestínea vinculada con el sector de entrada y una región supracrestínea vinculada con la vía de salida.<\/strong><\/p>
+<\/blockquote>
+<p><strong>Embriología:<\/strong> la bibliografía oficial <strong>no individualiza un origen embrionario propio para cada una de estas dos porciones<\/strong>.<\/p>
+<h2>7. Trabécula septomarginal<\/h2>
+<blockquote>
+<p><strong>Es una trabécula carnosa de segundo orden que une la pared septal con la región del músculo papilar anterior. En su espesor se relaciona con la rama derecha del fascículo atrioventricular.<\/strong><\/p>
+<\/blockquote>
+<ul>
+<li><strong>Anatómico:<\/strong> une regiones septal y anterior del ventrículo derecho.<\/li>
+<li><strong>Funcional:<\/strong> constituye un trayecto relacionado con la distribución de la rama derecha del sistema de conducción.<\/li>
+<li><strong>Embriológico:<\/strong> forma parte de la remodelación de la red trabecular ventricular; la bibliografía oficial no individualiza un origen embrionario independiente.<\/li>
+<\/ul>
+<h2>8. Cono arterioso<\/h2>
+<blockquote>
+<p><strong>Es la porción de salida del ventrículo derecho, de paredes relativamente lisas, que termina superiormente en el orificio del tronco pulmonar.<\/strong><\/p>
+<\/blockquote>
+<ul>
+<li><strong>Anatómico:<\/strong> constituye el segmento terminal de la vía de salida.<\/li>
+<li><strong>Funcional:<\/strong> conduce la sangre hacia el tronco pulmonar.<\/li>
+<li><strong>Embriológico:<\/strong> se relaciona con la región bulbar y con la tabicación de la vía de salida descrita durante el desarrollo cardíaco.<\/li>
+<\/ul>
+<h2>9. Válvula pulmonar<\/h2>
+<blockquote>
+<p><strong>La válvula pulmonar se sitúa en el orificio del tronco pulmonar y posee tres valvas semilunares: anterior, derecha e izquierda.<\/strong><\/p>
+<\/blockquote>
+<ul>
+<li>Durante la <strong>sístole ventricular<\/strong>, las valvas se aplican contra la pared arterial y permiten la apertura del orificio.<\/li>
+<li>Durante la <strong>diástole<\/strong>, las valvas se aproximan entre sí y cierran el orificio, impidiendo el retorno hacia el ventrículo.<\/li>
+<\/ul>
+<p><strong>Embriología:<\/strong> las valvas semilunares se desarrollan durante la tabicación del bulbo cardíaco y la separación de las vías aórtica y pulmonar.<\/p>
+<h2>10. Cámara de entrada<\/h2>
+<blockquote>
+<p><strong>La cámara de entrada se sitúa posteroinferiormente respecto de la cámara de salida, se relaciona con el orificio atrioventricular derecho y posee paredes irregulares con músculos papilares y trabéculas carnosas.<\/strong><\/p>
+<\/blockquote>
+<p><strong>Embriología:<\/strong> la bibliografía oficial <strong>no individualiza un origen embrionario propio de la cámara de entrada como estructura adulta separada<\/strong>.<\/p>
+<h2>11. Cámara de salida<\/h2>
+<blockquote>
+<p><strong>La cámara de salida se sitúa anterosuperiormente respecto de la cámara de entrada, presenta paredes más lisas y continúa superiormente con el cono arterioso y la válvula pulmonar.<\/strong><\/p>
+<\/blockquote>
+<p><strong>Embriología:<\/strong> la bibliografía oficial relaciona la morfogénesis de la vía de salida con la región bulbar, pero <strong>no individualiza un origen embrionario propio de la cámara de salida como unidad adulta separada<\/strong>.<\/p>
+<h2>12. Comparación de espesor con el ventrículo izquierdo<\/h2>
+<blockquote>
+<p><strong>Rouvière describe un espesor aproximado de 5 mm para las paredes del ventrículo derecho y de 1 cm para las paredes del ventrículo izquierdo. La circulación pulmonar funciona a una presión mucho menor que la circulación sistémica.<\/strong><\/p>
+<\/blockquote>
+<h2>Speech integrado<\/h2>
+<blockquote>
+<p><strong>El ventrículo derecho tiene forma de pirámide triangular y presenta paredes anterior, inferior y medial, vértice y base; sus paredes miden aproximadamente 5 mm. El orificio atrioventricular derecho está provisto de la válvula tricúspide, con valvas anterior, posterior y septal, cuerdas tendinosas y músculos papilares. El septo interventricular posee porciones muscular y membranosa y se relaciona con el septo atrioventricular y el sistema de conducción. La cresta supraventricular organiza topográficamente los sectores de entrada y salida. La trabécula septomarginal es una trabécula de segundo orden relacionada con la rama derecha del fascículo atrioventricular. La vía de salida continúa con el cono arterioso y termina en la válvula pulmonar, cuyas valvas semilunares son anterior, derecha e izquierda. La cámara de entrada es posteroinferior y trabeculada, mientras que la cámara de salida es anterosuperior y de paredes más lisas.<\/strong><\/p>
+<\/blockquote>
+<h2>Fotogramas sugeridos – Costarelli<\/h2>
+<blockquote>
+<p><strong>Selección visual:<\/strong> 5 fotograma(s) candidato(s). No existe un máximo prefijado; se conservaron sólo vistas con una utilidad anatómica diferente. Los tiempos provienen de las transcripciones, por lo que conviene revisar la ventana y elegir el cuadro más nítido.<\/p>
+<\/blockquote>
+<h3>VD-1 — CORAZÓN 7<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:02:45–00:03:36<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:03:05<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Presentación interna; orificio atrioventricular derecho; válvula tricúspide; músculos papilares; válvula pulmonar<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> ventrículo derecho; tricúspide; músculos papilares; válvula pulmonar; valvas semilunares<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista interna amplia del ventrículo derecho con aparato tricuspídeo y tracto arterial.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>qxI8DIB5bRg<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>VD-2 — CORAZÓN 7<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:03:36–00:04:03<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:03:50<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Trabécula septomarginal; relación con músculo papilar anterior y septo interventricular<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> trabécula septomarginal; septo interventricular; músculo papilar anterior<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Fotograma especialmente útil para marcar la banda muscular que une septo y región del músculo papilar anterior.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> El video la nombra mediante terminología histórica; usar trabécula septomarginal.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>qxI8DIB5bRg<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>VD-3 — CORAZÓN 7<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:04:03–00:04:43<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:04:25<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Cámara de entrada; cámara de salida; cono arterioso; cresta supraventricular<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> cámara de entrada; cámara de salida; cono arterioso; cresta supraventricular<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema con la separación funcional entre entrada y salida; ideal para entender el cambio de dirección del flujo dentro del ventrículo derecho.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>qxI8DIB5bRg<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>VD-4 — CORAZÓN 7<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:02:38–00:02:55<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:02:49<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Orificio del tronco pulmonar; válvula pulmonar; valvas semilunares<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> orificio del tronco pulmonar; válvula pulmonar; valvas semilunares<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Close-up del sector de salida del ventrículo derecho con la válvula pulmonar. Complementa la vista amplia VD-1.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> Usar nombres actuales de las valvas; ignorar epónimos de los nódulos si aparecen en pantalla.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>qxI8DIB5bRg<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>VD-5 — CORAZÓN 7<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:02:55–00:03:35<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:03:20<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Aparato tricuspídeo; valvas; músculos papilares; cuerdas tendinosas<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> válvula tricúspide; valva anterior; valva posterior; valva septal; músculos papilares; cuerdas tendinosas<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista más cerrada del aparato subvalvular derecho para reconocer valvas, papilares y cuerdas por separado en un preparado.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> Usar la imagen para reconocimiento. La distribución teórica de cuerdas y músculos papilares se mantiene según el MD auditado.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>qxI8DIB5bRg<\/code><\/p>
+<\/li>
+<\/ul>
+<h2>Bibliografía<\/h2>
+<ul>
+<li>Programa analítico 2026 – 1.ª Cátedra de Anatomía, UBA.<\/li>
+<li>Latarjet–Ruiz Liard, Anatomía Humana, 5.ª edición, tomo 2.<\/li>
+<li>Rouvière y Delmas, Anatomía Humana, tomo 2.<\/li>
+<\/ul>
+", "images": ["06_Ventriculo_derecho/01_vista_interna_general_aparato_tricuspideo_y_valvula_pulmonar__video_7__00-03-05.jpg", "06_Ventriculo_derecho/02_trabecula_septomarginal__video_7__00-03-50.jpg", "06_Ventriculo_derecho/03_camaras_de_entrada_y_salida_cono_arterioso__video_7__00-04-25.jpg"]}, {"id": "07_Atrio_izquierdo", "number": 7, "title": "Atrio izquierdo", "md_file": "07_Atrio_izquierdo/03_Corazon_Atrio_izquierdo.md", "html": "<h1>Corazón – Atrio izquierdo<\/h1>
+<h2>Programa<\/h2>
+<p>El programa exige estudiar en el atrio izquierdo:<\/p>
+<ul>
+<li>Orificios de las venas pulmonares.<\/li>
+<li>Orejuela izquierda.<\/li>
+<li>Orificio atrioventricular izquierdo.<\/li>
+<li>Válvula atrioventricular izquierda o mitral.<\/li>
+<li>Septo interatrial.<\/li>
+<li>Significado anatómico, funcional y embriológico de cada estructura.<\/li>
+<\/ul>
+<h2>1. Presentación del atrio izquierdo<\/h2>
+<blockquote>
+<p><strong>El atrio izquierdo es una cavidad de eje mayor transversal, situada a la izquierda y posteriormente respecto del atrio derecho. Recibe las cuatro venas pulmonares y se comunica con el ventrículo izquierdo por el orificio atrioventricular izquierdo, provisto de la válvula mitral.<\/strong><\/p>
+<\/blockquote>
+<h2>2. Orificios de las venas pulmonares<\/h2>
+<blockquote>
+<p><strong>Anatómicamente, en la pared posterior del atrio izquierdo desembocan cuatro venas pulmonares, dos derechas y dos izquierdas, cuyos orificios carecen de válvulas. Funcionalmente, constituyen la vía de llegada de la sangre proveniente de la circulación pulmonar al corazón izquierdo. Embriológicamente, la pared posterior lisa del atrio izquierdo se forma por incorporación progresiva del tronco venoso pulmonar y de sus ramas a la pared atrial.<\/strong><\/p>
+<\/blockquote>
+<h3>Idea clave embriológica<\/h3>
+<p>Inicialmente desemboca un tronco venoso pulmonar común. A medida que el atrio crece, el tronco y sus ramas proximales se incorporan progresivamente a la pared atrial, de modo que finalmente quedan cuatro orificios venosos pulmonares independientes.<\/p>
+<h2>3. Orejuela izquierda<\/h2>
+<blockquote>
+<p><strong>Anatómicamente, la orejuela izquierda es una prolongación del atrio izquierdo situada en su región superolateral y contiene músculos pectíneos. Funcionalmente, forma parte de la cavidad atrial contráctil y aumenta su capacidad. Embriológicamente, representa principalmente la porción del atrio izquierdo derivada del atrio primitivo, en contraste con la pared lisa relacionada con la incorporación de las venas pulmonares.<\/strong><\/p>
+<\/blockquote>
+<h3>Idea clave<\/h3>
+<ul>
+<li>Orejuela izquierda → porción derivada del atrio primitivo.<\/li>
+<li>Pared lisa con orificios pulmonares → incorporación de las venas pulmonares.<\/li>
+<\/ul>
+<h2>4. Orificio atrioventricular izquierdo y válvula mitral<\/h2>
+<blockquote>
+<p><strong>Anatómicamente, el orificio atrioventricular izquierdo comunica el atrio izquierdo con el ventrículo izquierdo y está provisto de la válvula mitral. Funcionalmente, permite el pasaje de sangre del atrio al ventrículo durante la diástole y se cierra durante la sístole ventricular para impedir el reflujo hacia el atrio. Embriológicamente, el aparato valvular atrioventricular se forma mediante la remodelación de los rodetes endocárdicos y del tejido ventricular relacionado con las valvas, cuerdas tendinosas y músculos papilares.<\/strong><\/p>
+<\/blockquote>
+<p>La válvula mitral se inserta en el anillo fibroso atrioventricular izquierdo y posee <strong>dos valvas principales<\/strong>:<\/p>
+<ul>
+<li><strong>Valva anterior o mayor:<\/strong> anteromedial; está frente al septo interventricular y al orificio aórtico, y participa en la separación entre la cámara de entrada y la cámara de salida del ventrículo izquierdo.<\/li>
+<li><strong>Valva posterior o menor:<\/strong> posterolateral; corresponde a la pared lateral del ventrículo izquierdo.<\/li>
+<\/ul>
+<p>Ambas valvas reciben cuerdas tendinosas de los músculos papilares anterior y posterior. La descripción completa del aparato mitral se desarrolla en el archivo de ventrículo izquierdo.<\/p>
+<h2>5. Septo interatrial<\/h2>
+<blockquote>
+<p><strong>Anatómicamente, el septo interatrial es la pared que separa ambos atrios. Presenta una disposición oblicua, de modo que el atrio izquierdo se encuentra no solo a la izquierda sino también en posición posterior respecto del atrio derecho. Desde el atrio izquierdo corresponde a una pared anterior y derecha, muy delgada a nivel de la región correspondiente a la fosa oval del lado derecho y más gruesa en su periferia. Funcionalmente, mantiene separadas las cavidades atriales después del nacimiento. Embriológicamente, resulta del proceso de tabicación del atrio primitivo mediante el desarrollo de septum primum y septum secundum, cuya disposición definitiva se relaciona con la región de la fosa oval.<\/strong><\/p>
+<\/blockquote>
+<p>En la cara izquierda pueden reconocerse vestigios del septum secundum.<\/p>
+<h3>Cierre del foramen oval al nacimiento<\/h3>
+<blockquote>
+<p><strong>Durante la vida fetal existe un paso de sangre desde el atrio derecho hacia el izquierdo a través del foramen oval. Al nacimiento, cuando se establece la respiración pulmonar, la presión del atrio izquierdo supera a la del atrio derecho. La válvula formada por el septum primum se aplica entonces contra el septum secundum y produce el cierre funcional del foramen oval; posteriormente puede producirse la soldadura anatómica.<\/strong><\/p>
+<\/blockquote>
+<p><strong>Punto fino:<\/strong> el corazón no comienza a latir con la primera respiración; ya funciona durante la vida fetal. Lo que cambia al nacimiento es la circulación: se establece la circulación pulmonar efectiva y cambia el gradiente de presión entre ambos atrios.<\/p>
+<h2>Speech integrado<\/h2>
+<blockquote>
+<p><strong>El atrio izquierdo es una cavidad de eje mayor transversal situada a la izquierda y posteriormente respecto del atrio derecho. Recibe cuatro venas pulmonares, cuyos orificios carecen de válvulas; anatómicamente constituyen las vías de llegada al atrio, funcionalmente conducen la sangre proveniente de los pulmones y embriológicamente se forman por incorporación progresiva del tronco venoso pulmonar y sus ramas a la pared atrial. La orejuela izquierda contiene músculos pectíneos y representa principalmente la porción derivada del atrio primitivo. El atrio se comunica con el ventrículo izquierdo mediante el orificio atrioventricular izquierdo, provisto de la válvula mitral, que asegura el flujo unidireccional durante el ciclo cardíaco. Finalmente, el septo interatrial separa ambos atrios, explica la posición más posterior del atrio izquierdo y deriva del proceso de tabicación atrial embrionaria.<\/strong><\/p>
+<\/blockquote>
+<h2>Fotogramas sugeridos – Costarelli<\/h2>
+<blockquote>
+<p><strong>Selección visual:<\/strong> 3 fotograma(s) candidato(s). No existe un máximo prefijado; se conservaron sólo vistas con una utilidad anatómica diferente. Los tiempos provienen de las transcripciones, por lo que conviene revisar la ventana y elegir el cuadro más nítido.<\/p>
+<\/blockquote>
+<h3>AI-1 — CORAZÓN 6<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:00:35–00:01:10<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:00:45<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Presentación; situación posterior; relaciones generales<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> atrio izquierdo; vista posterior; ventrículo izquierdo; venas pulmonares; seno coronario<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista posterior que ubica el atrio izquierdo como componente principal de la base.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>rtexfKYCbcE<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>AI-2 — CORAZÓN 6<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:01:50–00:02:20<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:01:58<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Orificio atrioventricular izquierdo; válvula mitral; septo interatrial<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> válvula mitral; septo interatrial; pared anterior<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Atrio izquierdo abierto con la válvula mitral y la pared septal.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>rtexfKYCbcE<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>AI-3 — CORAZÓN 6<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:02:35–00:02:58<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:02:47<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Orificios de las cuatro venas pulmonares; pared posterior<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> venas pulmonares; pared posterior; atrio izquierdo<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Fotograma específico para marcar los cuatro orificios venosos pulmonares.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>rtexfKYCbcE<\/code><\/p>
+<\/li>
+<\/ul>
+<h2>Bibliografía<\/h2>
+<ul>
+<li>Programa analítico 2026 – 1.ª Cátedra de Anatomía, UBA.<\/li>
+<li>Latarjet–Ruiz Liard, Anatomía Humana, 5.ª edición, tomo 2.<\/li>
+<li>Rouvière y Delmas, Anatomía Humana, tomo 2.<\/li>
+<\/ul>
+", "images": ["07_Atrio_izquierdo/01_orificio_atrioventricular_izquierdo_y_septo_interatrial__video_6__00-01-58.jpg", "07_Atrio_izquierdo/02_cuatro_venas_pulmonares_y_pared_posterior__video_6__00-02-47.jpg"]}, {"id": "08_Ventriculo_izquierdo", "number": 8, "title": "Ventrículo izquierdo", "md_file": "08_Ventriculo_izquierdo/04_Corazon_Ventriculo_izquierdo.md", "html": "<h1>Corazón – Ventrículo izquierdo<\/h1>
+<h2>Programa<\/h2>
+<ul>
+<li>Orificio atrioventricular izquierdo.<\/li>
+<li>Aparato de la válvula atrioventricular izquierda o mitral.<\/li>
+<li>Valvas anterior y posterior.<\/li>
+<li>Músculos papilares anterior y posterior.<\/li>
+<li>Cuerdas tendinosas.<\/li>
+<li>Septo interventricular: porciones muscular y membranosa.<\/li>
+<li>Válvula aórtica.<\/li>
+<li>Cámaras de entrada y salida.<\/li>
+<li>Significado anatómico, funcional y embriológico.<\/li>
+<\/ul>
+<h2>1. Presentación<\/h2>
+<blockquote>
+<p><strong>El ventrículo izquierdo es una cavidad cónica, de sección aproximadamente circular y paredes gruesas. Presenta paredes lateral, inferior y medial o septal, un vértice, una base y el orificio aórtico. Rouvière describe un espesor promedio cercano a 1 cm.<\/strong><\/p>
+<\/blockquote>
+<h2>2. Orificio atrioventricular izquierdo y aparato mitral<\/h2>
+<blockquote>
+<p><strong>El orificio atrioventricular izquierdo comunica el atrio izquierdo con el ventrículo izquierdo. Su aparato valvular comprende anillo fibroso, válvula mitral, cuerdas tendinosas y músculos papilares.<\/strong><\/p>
+<\/blockquote>
+<p>La válvula mitral posee <strong>dos valvas principales<\/strong>, anterior y posterior.<\/p>
+<h2>3. Valva anterior<\/h2>
+<ul>
+<li>Se sitúa <strong>anteromedialmente<\/strong> respecto de la valva posterior.<\/li>
+<li>Es ligeramente mayor.<\/li>
+<li>Se relaciona con el <strong>septo interventricular<\/strong> y con el <strong>orificio aórtico<\/strong>.<\/li>
+<li>Participa en la separación entre la cámara de entrada y la cámara de salida.<\/li>
+<li>Según Rouvière, sus cuerdas son <strong>de tercer orden<\/strong> y se fijan en el <strong>borde libre<\/strong>, por lo que su cara parietal permanece lisa.<\/li>
+<\/ul>
+<h2>4. Valva posterior<\/h2>
+<ul>
+<li>Se sitúa <strong>posterolateralmente<\/strong> respecto de la anterior.<\/li>
+<li>Corresponde a la pared lateral del ventrículo izquierdo.<\/li>
+<li>Recibe numerosas cuerdas tendinosas sobre su cara parietal, desde el borde libre hacia el borde adherente.<\/li>
+<\/ul>
+<h2>5. Músculos papilares<\/h2>
+<p>Existen dos músculos papilares principales:<\/p>
+<ul>
+<li><strong>anterior<\/strong>;<\/li>
+<li><strong>posterior<\/strong>.<\/li>
+<\/ul>
+<p>Ambos envían cuerdas a <strong>las dos valvas<\/strong>.<\/p>
+<ul>
+<li>Las cuerdas del músculo papilar anterior se dirigen a la <strong>mitad superior de ambas valvas<\/strong>.<\/li>
+<li>Las del músculo papilar posterior se dirigen a la <strong>mitad inferior de ambas valvas<\/strong>.<\/li>
+<\/ul>
+<p>Rouvière describe las cuerdas mitrales como más numerosas y resistentes que las de la válvula atrioventricular derecha.<\/p>
+<h2>6. Cuerdas tendinosas<\/h2>
+<p>Según su inserción:<\/p>
+<ol>
+<li><strong>Primer orden:<\/strong> borde adherente.<\/li>
+<li><strong>Segundo orden:<\/strong> cara parietal.<\/li>
+<li><strong>Tercer orden:<\/strong> borde libre.<\/li>
+<\/ol>
+<h3>Particularidad de la mitral<\/h3>
+<ul>
+<li><strong>Valva anterior:<\/strong> cuerdas de tercer orden fijadas al borde libre.<\/li>
+<li><strong>Valva posterior:<\/strong> cuerdas distribuidas sobre la cara parietal hasta proximidades del borde adherente.<\/li>
+<\/ul>
+<blockquote>
+<p><strong>La bibliografía oficial no establece un número total fijo de cuerdas para cada valva.<\/strong><\/p>
+<\/blockquote>
+<h2>7. Septo interventricular<\/h2>
+<blockquote>
+<p><strong>La pared medial del ventrículo izquierdo corresponde al septo interventricular, formado por una porción muscular extensa y una pequeña porción membranosa. Sobre su cara izquierda se relaciona con la rama izquierda del fascículo atrioventricular.<\/strong><\/p>
+<\/blockquote>
+<p><strong>Embriología:<\/strong> su formación es compleja y reúne componentes musculares y membranosos de distinto origen; la bibliografía oficial no permite atribuir toda la porción membranosa a un único componente embrionario.<\/p>
+<h2>8. Válvula aórtica<\/h2>
+<blockquote>
+<p><strong>El orificio aórtico se sitúa anterosuperiormente y a la derecha del orificio atrioventricular izquierdo. Está provisto de tres valvas semilunares: posterior, derecha e izquierda.<\/strong><\/p>
+<\/blockquote>
+<ul>
+<li>Durante la <strong>sístole<\/strong>, permite el paso de sangre desde el ventrículo izquierdo hacia la aorta.<\/li>
+<li>Durante la <strong>diástole<\/strong>, el cierre de las valvas impide el retorno hacia el ventrículo.<\/li>
+<li>Los senos aórticos derecho e izquierdo se relacionan con los orificios de las arterias coronarias derecha e izquierda.<\/li>
+<\/ul>
+<p><strong>Embriología:<\/strong> las valvas semilunares se desarrollan durante la tabicación de la vía de salida y la separación de los conductos aórtico y pulmonar.<\/p>
+<h2>9. Cámara de entrada<\/h2>
+<blockquote>
+<p><strong>La cámara de entrada se sitúa posteroinferiormente y hacia la izquierda respecto de la cámara de salida. Se relaciona con el orificio atrioventricular izquierdo y está limitada anteromedialmente por la valva anterior de la mitral.<\/strong><\/p>
+<\/blockquote>
+<p><strong>Embriología:<\/strong> la bibliografía oficial <strong>no individualiza un origen embrionario propio de esta cámara adulta<\/strong>.<\/p>
+<h2>10. Cámara de salida<\/h2>
+<blockquote>
+<p><strong>La cámara de salida es un conducto estrecho situado anterosuperiormente y hacia la derecha respecto de la cámara de entrada, entre la valva anterior de la mitral y el septo interventricular. Termina en el orificio aórtico.<\/strong><\/p>
+<\/blockquote>
+<p>Durante la sístole la sangre progresa por esta cámara hacia la aorta.<\/p>
+<p><strong>Embriología:<\/strong> la bibliografía oficial describe la morfogénesis global de la vía de salida, pero <strong>no individualiza un origen embrionario propio de esta cámara adulta<\/strong>.<\/p>
+<h2>11. Comparación con el ventrículo derecho<\/h2>
+<blockquote>
+<p><strong>Rouvière describe para el ventrículo izquierdo una pared de aproximadamente 1 cm, frente a aproximadamente 5 mm en el ventrículo derecho. La circulación sistémica trabaja a presiones mayores que la circulación pulmonar.<\/strong><\/p>
+<\/blockquote>
+<h2>Speech integrado<\/h2>
+<blockquote>
+<p><strong>El ventrículo izquierdo es cónico, de sección aproximadamente circular y paredes gruesas. El orificio atrioventricular izquierdo posee la válvula mitral, formada por valvas anterior y posterior, cuerdas tendinosas y músculos papilares anterior y posterior. Ambos músculos papilares envían cuerdas a las dos valvas. La valva anterior se sitúa anteromedialmente, separa las cámaras de entrada y salida y recibe cuerdas en su borde libre; la posterior se sitúa posterolateralmente y recibe numerosas cuerdas sobre su cara parietal. La pared medial corresponde al septo interventricular. La cámara de entrada es posteroinferior y la cámara de salida es anterosuperior, entre la valva anterior y el septo. Esta última termina en la válvula aórtica, formada por valvas semilunares posterior, derecha e izquierda.<\/strong><\/p>
+<\/blockquote>
+<h2>Fotogramas sugeridos – Costarelli<\/h2>
+<blockquote>
+<p><strong>Selección visual:<\/strong> 5 fotograma(s) candidato(s). No existe un máximo prefijado; se conservaron sólo vistas con una utilidad anatómica diferente. Los tiempos provienen de las transcripciones, por lo que conviene revisar la ventana y elegir el cuadro más nítido.<\/p>
+<\/blockquote>
+<h3>VI-1 — CORAZÓN 7<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:04:54–00:05:30<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:05:15<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Presentación interna; orificio atrioventricular izquierdo; válvula mitral; valvas anterior y posterior<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> ventrículo izquierdo; válvula mitral; valva anterior; valva posterior<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Ventrículo izquierdo abierto con el aparato mitral expuesto.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>qxI8DIB5bRg<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>VI-2 — CORAZÓN 7<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:05:30–00:06:10<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:05:45<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Músculos papilares; cuerdas tendinosas; válvula aórtica<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> músculo papilar anterior; músculo papilar posterior; cuerdas tendinosas; válvula aórtica<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Secuencia de aparato subvalvular mitral y salida aórtica.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> La clasificación/distribución de cuerdas que verbaliza el video no coincide en todos sus detalles con Rouvière/Latarjet; usar únicamente la imagen.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>qxI8DIB5bRg<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>VI-3 — CORAZÓN 8<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:02:38–00:03:12<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:02:50<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Repaso tridimensional del aparato mitral; relación con aorta; músculos papilares<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> ventrículo izquierdo; mitral; músculos papilares; aorta<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema compacto para repasar en una sola imagen la relación entre mitral, músculos papilares y salida aórtica.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> Usar las etiquetas anatómicas actuales de nuestros MD, no la nomenclatura histórica del audio.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>lMwnXevm14k<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>VI-4 — CORAZÓN 7<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:05:20–00:05:30<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:05:25<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Orificio de la aorta; válvula aórtica; valvas semilunares<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> orificio aórtico; válvula aórtica; valvas semilunares<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Close-up del orificio aórtico y su válvula dentro del ventrículo izquierdo, separado del aparato mitral.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> Rotular las valvas con nomenclatura actual; cualquier epónimo del video debe omitirse o quedar sólo entre corchetes.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>qxI8DIB5bRg<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>VI-5 — CORAZÓN 7<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:05:30–00:06:02<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:05:50<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Músculos papilares anterior y posterior; cuerdas tendinosas hacia ambas valvas mitrales<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> músculo papilar anterior; músculo papilar posterior; cuerdas tendinosas; valva anterior; valva posterior<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista enfocada en los dos músculos papilares y la inserción de cuerdas sobre la válvula mitral. Muy útil para reconocimiento práctico.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> No memorizar del audio la clasificación/distribución de cuerdas: usar la descripción oficial del MD.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>qxI8DIB5bRg<\/code><\/p>
+<\/li>
+<\/ul>
+<h2>Bibliografía<\/h2>
+<ul>
+<li>Programa analítico 2026 – 1.ª Cátedra de Anatomía, UBA.<\/li>
+<li>Latarjet–Ruiz Liard, Anatomía Humana, 5.ª edición, tomo 2.<\/li>
+<li>Rouvière y Delmas, Anatomía Humana, tomo 2.<\/li>
+<\/ul>
+", "images": ["08_Ventriculo_izquierdo/01_vista_interna_y_valvula_atrioventricular_izquierda__video_7__00-05-15.jpg", "08_Ventriculo_izquierdo/02_valvula_aortica_y_aparato_subvalvular__video_7__00-05-45.jpg", "08_Ventriculo_izquierdo/03_relacion_tridimensional_mitral_aorta_papilares__video_8__00-02-50.jpg", "08_Ventriculo_izquierdo/04_orificio_aortico_y_valvas_semilunares__video_7__00-05-25.jpg", "08_Ventriculo_izquierdo/05_musculos_papilares_y_cuerdas_tendinosas__video_7__00-05-50.jpg"]}, {"id": "09_Comparacion_y_transicion_neonatal", "number": 9, "title": "Comparación y transición neonatal", "md_file": "09_Comparacion_y_transicion_neonatal/05_Comparacion_corazon_derecho_izquierdo_y_transicion_neonatal.md", "html": "<h1>Corazón – Comparación derecha/izquierda y transición circulatoria al nacimiento<\/h1>
+<h2>1. Comparación derecha e izquierda<\/h2>
+<h3>Corazón derecho<\/h3>
+<ul>
+<li>Recibe el retorno venoso sistémico.<\/li>
+<li>Envía sangre hacia la circulación pulmonar.<\/li>
+<li>El ventrículo derecho posee paredes de aproximadamente <strong>5 mm<\/strong> según Rouvière.<\/li>
+<\/ul>
+<h3>Corazón izquierdo<\/h3>
+<ul>
+<li>Recibe el retorno de las venas pulmonares.<\/li>
+<li>Envía sangre hacia la circulación sistémica.<\/li>
+<li>El ventrículo izquierdo posee paredes de aproximadamente <strong>1 cm<\/strong> según Rouvière.<\/li>
+<\/ul>
+<blockquote>
+<p><strong>La pared ventricular izquierda es, por lo tanto, considerablemente más gruesa que la derecha. Latarjet señala además que la presión de la circulación sistémica es muy superior a la presión de la circulación pulmonar.<\/strong><\/p>
+<\/blockquote>
+<h2>2. Circulación fetal y foramen oval<\/h2>
+<blockquote>
+<p><strong>Durante la vida fetal, la corriente sanguínea atraviesa el foramen oval desde el atrio derecho hacia el atrio izquierdo. El septum primum constituye el componente valvular que permite este pasaje unidireccional fetal.<\/strong><\/p>
+<\/blockquote>
+<h2>3. Cierre al nacimiento<\/h2>
+<blockquote>
+<p><strong>Al establecerse la respiración pulmonar, la presión del atrio izquierdo supera a la del atrio derecho. La prolongación del septum primum se aplica entonces contra la cara izquierda del septum secundum y produce el cierre funcional del foramen oval. Posteriormente puede producirse la unión anatómica de ambos componentes.<\/strong><\/p>
+<\/blockquote>
+<h3>Aclaración importante<\/h3>
+<blockquote>
+<p><strong>El corazón no comienza a latir con la primera respiración: ya posee actividad durante la vida fetal. Lo que cambia al nacimiento es el régimen circulatorio y el gradiente de presión entre ambos atrios.<\/strong><\/p>
+<\/blockquote>
+<p>La bibliografía anatómica oficial utilizada establece como mecanismo inmediato del cierre el cambio de presión <strong>atrio izquierdo &gt; atrio derecho<\/strong> al iniciarse la respiración pulmonar. No desarrolla en este apartado una explicación fisiológica detallada de todos los cambios de resistencia vascular neonatal, por lo que no se agregan mecanismos no explicitados por estas fuentes.<\/p>
+<h2>Speech<\/h2>
+<blockquote>
+<p><strong>El corazón derecho recibe el retorno sistémico y lo impulsa hacia la circulación pulmonar, mientras que el corazón izquierdo recibe el retorno pulmonar y lo impulsa hacia la circulación sistémica. Rouvière describe aproximadamente 5 mm de espesor para las paredes del ventrículo derecho y 1 cm para las del izquierdo. Durante la vida fetal existe un pasaje de derecha a izquierda a través del foramen oval. Al nacimiento, cuando se establece la respiración pulmonar, la presión del atrio izquierdo supera a la del derecho; el septum primum se aplica contra el septum secundum y produce el cierre funcional del foramen oval.<\/strong><\/p>
+<\/blockquote>
+<h2>Fotogramas sugeridos – Costarelli<\/h2>
+<blockquote>
+<p><strong>Selección visual:<\/strong> 3 fotograma(s) candidato(s). No existe un máximo prefijado; se conservaron sólo vistas con una utilidad anatómica diferente. Los tiempos provienen de las transcripciones, por lo que conviene revisar la ventana y elegir el cuadro más nítido.<\/p>
+<\/blockquote>
+<h3>COMP-1 — CORAZÓN 7<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:04:54–00:05:20<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:05:05<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Comparación morfológica de los ventrículos; mayor espesor de la pared izquierda<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> ventrículo derecho; ventrículo izquierdo; espesor de pared<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Secuencia de transición desde el ventrículo derecho al izquierdo; útil para comparar cavidad y grosor de pared.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>qxI8DIB5bRg<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>COMP-2 — CORAZÓN 1<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:03:20–00:04:05<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:03:35<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Circulación fetal; cortocircuito interatrial; relación con circulación pulmonar fetal<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> circulación fetal; foramen oval; atrio derecho; atrio izquierdo; conducto arterioso<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema de circulación fetal. Sirve para contextualizar la función del foramen oval, no para memorizar nomenclatura del video.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> El audio utiliza nombres históricos; rotular foramen oval, septum primum y septum secundum según el MD.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>RRmbSoF3KMY<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>COMP-3 — CORAZÓN 5<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:03:55–00:04:23<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:04:05<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Fosa oval como consecuencia del cierre funcional/anatómico del foramen oval<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> fosa oval; septo interatrial; cierre del foramen oval<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Pared septal del atrio derecho con fosa oval; buen puente entre embriología y preparado adulto.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>IFAwkcKeRGg<\/code><\/p>
+<\/li>
+<\/ul>
+<h2>Bibliografía<\/h2>
+<ul>
+<li>Latarjet–Ruiz Liard, Anatomía Humana, 5.ª edición, tomo 2.<\/li>
+<li>Rouvière y Delmas, Anatomía Humana, tomo 2.<\/li>
+<\/ul>
+", "images": ["09_Comparacion_y_transicion_neonatal/01_comparacion_espesor_ventricular__video_7__00-05-05.jpg", "09_Comparacion_y_transicion_neonatal/02_circulacion_fetal__video_1__00-03-35.jpg", "09_Comparacion_y_transicion_neonatal/03_fosa_oval_y_cierre_neonatal__video_5__00-04-00.jpg"]}, {"id": "10_Circulacion_sanguinea", "number": 10, "title": "Circulación sanguínea", "md_file": "10_Circulacion_sanguinea/Circulacion_sanguinea_por_las_cavidades_cardiacas.md", "html": "<h1>Circulación sanguínea por las cavidades cardíacas<\/h1>
+<h2>Speech<\/h2>
+<blockquote>
+<p><strong>La circulación sanguínea por las cavidades cardíacas comienza con el retorno venoso sistémico, que alcanza el atrio derecho principalmente por las venas cavas superior e inferior y por el seno coronario. Desde el atrio derecho la sangre atraviesa el orificio atrioventricular derecho y la válvula tricúspide e ingresa al ventrículo derecho. Recorre su cámara de entrada y luego su cámara de salida o cono arterioso, atraviesa la válvula pulmonar y pasa al tronco pulmonar.<\/strong><\/p>
+<p><strong>El tronco pulmonar se divide en las arterias pulmonares derecha e izquierda, que conducen la sangre hacia los pulmones, donde se realiza la hematosis. La sangre oxigenada retorna por las cuatro venas pulmonares al atrio izquierdo. Desde allí atraviesa el orificio atrioventricular izquierdo y la válvula mitral hacia el ventrículo izquierdo. Recorre la cámara de entrada y luego la cámara de salida aórtica, atraviesa la válvula aórtica y pasa a la aorta, que la distribuye por la circulación sistémica. Finalmente, el retorno venoso sistémico vuelve nuevamente al atrio derecho, completando el circuito.<\/strong><\/p>
+<\/blockquote>
+<h2>Cadena rápida<\/h2>
+<p><strong>VCS + VCI + seno coronario → atrio derecho → tricúspide → ventrículo derecho → válvula pulmonar → tronco pulmonar → arterias pulmonares → pulmones → venas pulmonares → atrio izquierdo → mitral → ventrículo izquierdo → válvula aórtica → aorta → circulación sistémica → venas cavas → atrio derecho.<\/strong><\/p>
+<h2>Dos circuitos<\/h2>
+<h3>Circulación pulmonar o menor<\/h3>
+<p><strong>Ventrículo derecho → tronco pulmonar → arterias pulmonares → pulmones → venas pulmonares → atrio izquierdo.<\/strong><\/p>
+<h3>Circulación sistémica o mayor<\/h3>
+<p><strong>Ventrículo izquierdo → aorta → tejidos → sistema venoso → venas cavas → atrio derecho.<\/strong><\/p>
+<h2>Punto útil para oral<\/h2>
+<p>Las arterias y venas se denominan según la dirección del flujo respecto del corazón, no según su contenido de oxígeno. Por eso:<\/p>
+<ul>
+<li>Las <strong>arterias pulmonares<\/strong> llevan sangre no oxigenada desde el corazón hacia los pulmones.<\/li>
+<li>Las <strong>venas pulmonares<\/strong> llevan sangre oxigenada desde los pulmones hacia el corazón.<\/li>
+<\/ul>
+<h2>Fotogramas sugeridos – Costarelli<\/h2>
+<blockquote>
+<p><strong>Selección visual:<\/strong> 2 fotograma(s) candidato(s). No existe un máximo prefijado; se conservaron sólo vistas con una utilidad anatómica diferente. Los tiempos provienen de las transcripciones, por lo que conviene revisar la ventana y elegir el cuadro más nítido.<\/p>
+<\/blockquote>
+<h3>CIRC-1 — CORAZÓN 1<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:01:34–00:02:19<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:01:50<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Secuencia atrio–ventrículo–arteria; circulación sistémica<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> atrio; ventrículo; aorta; circulación sistémica; venas cavas<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema global de flujo desde ventrículo izquierdo hacia la circulación sistémica y retorno al atrio derecho.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>RRmbSoF3KMY<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>CIRC-2 — CORAZÓN 1<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:02:19–00:02:55<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:02:30<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Circulación pulmonar<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> ventrículo derecho; tronco pulmonar; pulmones; circulación pulmonar<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema del paso desde ventrículo derecho hacia pulmones y retorno al corazón izquierdo.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>RRmbSoF3KMY<\/code><\/p>
+<\/li>
+<\/ul>
+<h2>Bibliografía<\/h2>
+<ul>
+<li>Programa analítico 2026 – 1.ª Cátedra de Anatomía, UBA.<\/li>
+<li>Latarjet–Ruiz Liard, Anatomía Humana, 5.ª edición, tomo 2.<\/li>
+<\/ul>
+", "images": ["10_Circulacion_sanguinea/01_recorrido_por_cavidades__video_1__00-01-50.jpg", "10_Circulacion_sanguinea/02_circulacion_pulmonar_y_sistemica__video_1__00-02-30.jpg"]}, {"id": "11_Irrigacion_coronaria", "number": 11, "title": "Irrigación coronaria", "md_file": "11_Irrigacion_coronaria/Irrigacion_del_corazon.md", "html": "<h1>Irrigación del corazón<\/h1>
+<h2>Programa<\/h2>
+<p>El programa exige:<\/p>
+<ul>
+<li>Arteria coronaria derecha.<\/li>
+<li>Arteria interventricular posterior.<\/li>
+<li>Rama del nodo sinoatrial.<\/li>
+<li>Rama del nodo atrioventricular.<\/li>
+<li>Ramas interventriculares septales posteriores.<\/li>
+<li>Rama marginal derecha.<\/li>
+<li>Arteria coronaria izquierda.<\/li>
+<li>Arteria interventricular anterior.<\/li>
+<li>Arteria circunfleja.<\/li>
+<li>Ramas diagonales.<\/li>
+<li>Ramas interventriculares septales anteriores.<\/li>
+<li>Rama marginal izquierda.<\/li>
+<li>Territorio de irrigación de cada coronaria.<\/li>
+<li>Irrigación del sistema de conducción.<\/li>
+<\/ul>
+<h2>1. Concepto general<\/h2>
+<blockquote>
+<p><strong>La irrigación arterial del corazón está dada por dos arterias coronarias, derecha e izquierda, ramas de la aorta ascendente. Se disponen alrededor del corazón siguiendo principalmente el surco coronario y los surcos interventriculares.<\/strong><\/p>
+<\/blockquote>
+<h1>Coronaria derecha<\/h1>
+<h2>2. Origen y trayecto<\/h2>
+<blockquote>
+<p><strong>La arteria coronaria derecha nace de la aorta a nivel del seno aórtico derecho. Se dirige inferior, anterior y lateralmente hacia la derecha, recorre la porción derecha del surco coronario y alcanza la cara inferior del corazón. En la disposición habitual continúa como rama interventricular posterior.<\/strong><\/p>
+<\/blockquote>
+<p>Su trayecto puede describirse en tres segmentos:<\/p>
+<ol>
+<li><strong>Preatrial.<\/strong><\/li>
+<li><strong>Infraatrial.<\/strong><\/li>
+<li><strong>Interventricular posterior.<\/strong><\/li>
+<\/ol>
+<h2>3. Ramas principales<\/h2>
+<ul>
+<li><strong>Rama del nodo sinoatrial:<\/strong> habitualmente rama atrial de la coronaria derecha, aunque puede originarse en la izquierda.<\/li>
+<li><strong>Rama marginal derecha:<\/strong> se dirige hacia el borde derecho e irriga principalmente el ventrículo derecho.<\/li>
+<li><strong>Rama del nodo atrioventricular:<\/strong> participa en la irrigación del nodo AV y del fascículo atrioventricular.<\/li>
+<li><strong>Rama interventricular posterior:<\/strong> recorre el surco interventricular posterior.<\/li>
+<li><strong>Ramas interventriculares septales posteriores:<\/strong> penetran el septo interventricular.<\/li>
+<\/ul>
+<h3>Speech<\/h3>
+<blockquote>
+<p><strong>La coronaria derecha nace del seno aórtico derecho, recorre el surco coronario derecho y alcanza la cara inferior. Entre sus ramas principales se encuentran la rama del nodo sinoatrial, la marginal derecha, la rama del nodo atrioventricular, la interventricular posterior y las ramas interventriculares septales posteriores.<\/strong><\/p>
+<\/blockquote>
+<h1>Coronaria izquierda<\/h1>
+<h2>4. Origen y división<\/h2>
+<blockquote>
+<p><strong>La coronaria izquierda nace de la aorta a nivel del seno aórtico izquierdo. Pasa posterior al tronco pulmonar, luego hacia su lado izquierdo y queda parcialmente cubierta por la orejuela izquierda. Después de un trayecto corto se divide en dos ramas terminales principales: interventricular anterior y circunfleja.<\/strong><\/p>
+<\/blockquote>
+<h2>5. Rama interventricular anterior<\/h2>
+<p>Recorre el <strong>surco interventricular anterior<\/strong> hacia el vértice.<\/p>
+<p>Da principalmente:<\/p>
+<ul>
+<li>ramas ventriculares;<\/li>
+<li><strong>ramas diagonales<\/strong>;<\/li>
+<li><strong>ramas interventriculares septales anteriores<\/strong>.<\/li>
+<\/ul>
+<p>Estas últimas irrigan principalmente los <strong>dos tercios anteriores del septo interventricular<\/strong>.<\/p>
+<h2>6. Rama circunfleja<\/h2>
+<p>Recorre la porción izquierda del <strong>surco coronario<\/strong> hacia la cara inferior.<\/p>
+<p>Da ramas atriales y ventriculares, entre ellas la:<\/p>
+<ul>
+<li><strong>rama marginal izquierda<\/strong>, destinada a la pared lateral del ventrículo izquierdo.<\/li>
+<\/ul>
+<h3>Speech<\/h3>
+<blockquote>
+<p><strong>La coronaria izquierda nace del seno aórtico izquierdo y se divide en interventricular anterior y circunfleja. La interventricular anterior recorre el surco interventricular anterior y da ramas diagonales y septales anteriores. La circunfleja recorre el surco coronario izquierdo y da, entre otras, la marginal izquierda.<\/strong><\/p>
+<\/blockquote>
+<h1>7. Territorios coronarios<\/h1>
+<h2>Coronaria derecha<\/h2>
+<p>Irriga principalmente:<\/p>
+<ul>
+<li>atrio derecho;<\/li>
+<li>gran parte del ventrículo derecho;<\/li>
+<li>parte de la cara inferior del ventrículo izquierdo;<\/li>
+<li><strong>tercio posterior del septo interventricular<\/strong>;<\/li>
+<li>con mayor frecuencia, componentes proximales del sistema de conducción.<\/li>
+<\/ul>
+<h2>Coronaria izquierda<\/h2>
+<p>Irriga principalmente:<\/p>
+<ul>
+<li>atrio izquierdo;<\/li>
+<li>parte variable del atrio derecho;<\/li>
+<li>mayor parte del ventrículo izquierdo;<\/li>
+<li>parte anterior del ventrículo derecho;<\/li>
+<li><strong>dos tercios anteriores del septo interventricular<\/strong>.<\/li>
+<\/ul>
+<h3>Regla mental<\/h3>
+<p><strong>Derecha → corazón derecho + cara inferior + 1/3 posterior del septo.<\/strong><\/p>
+<p><strong>Izquierda → mayor parte del VI + cara anterior + 2/3 anteriores del septo.<\/strong><\/p>
+<h1>8. Irrigación del sistema de conducción<\/h1>
+<ul>
+<li><strong>Nodo sinoatrial:<\/strong> habitualmente irrigado por una rama de la coronaria derecha, aunque puede provenir de la izquierda.<\/li>
+<li><strong>Nodo atrioventricular y fascículo atrioventricular:<\/strong> habitualmente irrigados por ramas septales posteriores, generalmente dependientes de la coronaria derecha.<\/li>
+<li><strong>Rama derecha del fascículo AV:<\/strong> recibe irrigación de ramas septales anteriores.<\/li>
+<li><strong>Rama izquierda del fascículo AV:<\/strong> irrigada por ramas interventriculares septales anteriores de la coronaria izquierda.<\/li>
+<\/ul>
+<h1>9. Dominancia coronaria<\/h1>
+<blockquote>
+<p><strong>La dominancia coronaria se define por cuál arteria coronaria origina la rama interventricular posterior.<\/strong><\/p>
+<\/blockquote>
+<ul>
+<li><strong>Dominancia derecha:<\/strong> la rama interventricular posterior nace de la <strong>coronaria derecha<\/strong>.<\/li>
+<li><strong>Dominancia izquierda:<\/strong> nace de la <strong>rama circunfleja de la coronaria izquierda<\/strong>.<\/li>
+<li><strong>Codominancia:<\/strong> ambas coronarias participan en la vascularización posterior.<\/li>
+<\/ul>
+<p>La disposición descrita habitualmente por Latarjet y Rouvière es la continuación de la coronaria derecha como rama interventricular posterior, pero no debe tomarse como una regla absoluta.<\/p>
+<h3>Consecuencia anatómica<\/h3>
+<p>La dominancia modifica qué coronaria aporta gran parte de la irrigación de la <strong>cara inferior<\/strong> y del <strong>territorio posterior del septo interventricular<\/strong>.<\/p>
+<h3>Speech<\/h3>
+<blockquote>
+<p><strong>Debe considerarse además la dominancia coronaria, determinada por el origen de la rama interventricular posterior. Es derecha cuando esta rama depende de la coronaria derecha, izquierda cuando depende de la circunfleja de la coronaria izquierda y puede existir codominancia cuando ambas participan en la irrigación posterior.<\/strong><\/p>
+<\/blockquote>
+<h1>10. Reparos de la cara inferior<\/h1>
+<p>En la cara inferior es útil reconocer la <strong>cruz formada por el surco coronario con los surcos interatrial e interventricular posterior<\/strong>. Latarjet utiliza esta región como reparo para describir las variaciones de extensión de las coronarias y la transición de la vena cardíaca magna hacia el seno coronario.<\/p>
+<h1>Speech integrado<\/h1>
+<blockquote>
+<p><strong>La irrigación del corazón depende de las arterias coronarias derecha e izquierda, ramas de la aorta ascendente. La coronaria derecha nace del seno aórtico derecho, recorre el surco coronario y alcanza la cara inferior; da, entre otras, la rama del nodo sinoatrial, la marginal derecha, la rama del nodo atrioventricular, la interventricular posterior y ramas septales posteriores. Irriga principalmente el atrio derecho, gran parte del ventrículo derecho, parte de la cara inferior del ventrículo izquierdo y el tercio posterior del septo interventricular.<\/strong><\/p>
+<p><strong>La coronaria izquierda nace del seno aórtico izquierdo y se divide en interventricular anterior y circunfleja. La interventricular anterior da ramas diagonales y septales anteriores; la circunfleja recorre el surco coronario izquierdo y da la marginal izquierda. Irriga el atrio izquierdo, la mayor parte del ventrículo izquierdo, parte del ventrículo derecho y los dos tercios anteriores del septo. La dominancia coronaria se define por el origen de la rama interventricular posterior: es derecha si depende de la coronaria derecha, izquierda si depende de la circunfleja y puede existir codominancia.<\/strong><\/p>
+<\/blockquote>
+<h2>Fotogramas sugeridos – Costarelli<\/h2>
+<blockquote>
+<p><strong>Selección visual:<\/strong> 10 fotograma(s) candidato(s). No existe un máximo prefijado; se conservaron sólo vistas con una utilidad anatómica diferente. Los tiempos provienen de las transcripciones, por lo que conviene revisar la ventana y elegir el cuadro más nítido.<\/p>
+<\/blockquote>
+<h3>IRR-1 — CORAZÓN 12<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:02:18–00:03:42<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:03:30<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Coronaria derecha; trayecto; rama marginal derecha; ramas atriales<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> arteria coronaria derecha; surco coronario; rama marginal derecha; ramas atriales<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista anterior con la coronaria derecha y sus ramas superficiales principales.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>ZQ183dlXDoc<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>IRR-2 — CORAZÓN 12<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:05:18–00:07:40<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:05:42<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Coronaria izquierda; bifurcación; rama interventricular anterior; rama circunfleja<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> arteria coronaria izquierda; rama interventricular anterior; rama circunfleja<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Momento donde se presenta el tronco coronario izquierdo y su bifurcación; revisar unos segundos hacia 00:06:28 y 00:07:09 si querés capturas más cerradas de cada rama.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>ZQ183dlXDoc<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>IRR-3 — CORAZÓN 13<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:05:50–00:06:35<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:06:20<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Cara posterior; relación entre coronaria derecha y circunfleja; dominancia coronaria; origen de la rama interventricular posterior<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> cara posterior; coronaria derecha; circunfleja; rama interventricular posterior; dominancia<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista posterior donde ambas coronarias alcanzan la región de cruce de los surcos. Muy útil para entender dominancia espacialmente.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> IMPORTANTE: el criterio verbal del video (“la que llega primero”) no es el que usamos. En nuestros MD la dominancia se define por cuál coronaria origina la rama interventricular posterior.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>MvU8MTFBHic<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>IRR-4 — CORAZÓN 12<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:02:18–00:02:34<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:02:22<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Origen de la arteria coronaria derecha en la raíz aórtica<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> arteria coronaria derecha; seno aórtico derecho; aorta<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Close-up del nacimiento de la coronaria derecha. Útil para marcar el origen antes de seguir su trayecto.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> El video utiliza nomenclatura histórica para los senos aórticos; rotular según el MD.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>ZQ183dlXDoc<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>IRR-5 — CORAZÓN 12<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:03:15–00:03:42<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:03:32<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Ramas ventriculares de la coronaria derecha; rama marginal derecha<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> coronaria derecha; rama marginal derecha; borde derecho; ventrículo derecho<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista anterior/lateral con la rama marginal derecha separándose de la coronaria derecha. Es un reparo práctico distinto del tronco coronario.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>ZQ183dlXDoc<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>IRR-6 — CORAZÓN 12<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:06:23–00:07:08<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:06:31<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Tronco de la coronaria izquierda; rama interventricular anterior y su relación con el surco interventricular anterior<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> coronaria izquierda; rama interventricular anterior; surco interventricular anterior<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista anterior centrada en el tronco izquierdo y la rama interventricular anterior. Útil para seguirla hacia el vértice.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>ZQ183dlXDoc<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>IRR-7 — CORAZÓN 12<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:07:09–00:08:10<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:07:58<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Rama circunfleja; trayecto por el surco coronario izquierdo; rama marginal izquierda<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> rama circunfleja; surco coronario izquierdo; rama marginal izquierda; ventrículo izquierdo<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista que sigue la circunfleja hacia posterior y permite individualizar la marginal izquierda.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>ZQ183dlXDoc<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>IRR-8 — CORAZÓN 11<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:03:21–00:04:28<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:04:17<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Marco arterial coronario completo; coronaria derecha e izquierda; interventriculares anterior y posterior; circunfleja<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> marco vascular cardíaco; coronaria derecha; coronaria izquierda; circunfleja; interventricular anterior; interventricular posterior<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema en el que las cavidades se retiran y queda expuesto el “marco” arterial. Es probablemente el mejor fotograma global para reconstruir la irrigación en 3D.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> La explicación del origen de la interventricular posterior en este video es simplificada; usar el fotograma como mapa y conservar la teoría de dominancia del MD.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>8R5OvJqrzYw<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>IRR-9 — CORAZÓN 14<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:03:26–00:04:21<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:04:08<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Ramas interventriculares septales anteriores y posteriores; relación con los territorios septales<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> ramas interventriculares septales anteriores; septales posteriores; septo interventricular<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema de las ramas septales penetrando desde las arterias interventriculares anterior y posterior. Muy útil porque no se reconocen bien en una vista superficial convencional.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> El video desarrolla anastomosis con nomenclatura propia; para territorio y origen seguir el MD auditado.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>cSGyZpq_U9k<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>IRR-10 — CORAZÓN 13<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:08:13–00:08:47<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:08:25<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Rama interventricular posterior en el contexto de dominancia coronaria<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> dominancia coronaria; rama interventricular posterior; coronaria derecha; circunfleja<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista posterior durante la explicación de qué vaso continúa hacia el surco interventricular posterior. Sirve para fijar espacialmente la rama que define la dominancia.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> MUY IMPORTANTE: no memorizar el criterio verbal del video (“llegar primero a la cruz”). En el MD, dominancia = coronaria que origina la rama interventricular posterior.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>MvU8MTFBHic<\/code><\/p>
+<\/li>
+<\/ul>
+<h2>Bibliografía<\/h2>
+<ul>
+<li>Programa analítico 2026 – 1.ª Cátedra de Anatomía, UBA.<\/li>
+<li>Latarjet–Ruiz Liard, Anatomía Humana, 5.ª edición, tomo 2.<\/li>
+<li>Rouvière y Delmas, Anatomía Humana, tomo 2.<\/li>
+<\/ul>
+", "images": ["11_Irrigacion_coronaria/01_coronaria_derecha_vista_anterior__video_12__00-03-30.jpg", "11_Irrigacion_coronaria/02_origen_coronaria_derecha__video_12__00-02-22.jpg", "11_Irrigacion_coronaria/03_rama_marginal_derecha__video_12__00-03-32.jpg", "11_Irrigacion_coronaria/04_coronaria_izquierda_y_bifurcacion__video_12__00-05-42.jpg", "11_Irrigacion_coronaria/05_rama_interventricular_anterior__video_12__00-06-31.jpg", "11_Irrigacion_coronaria/06_rama_circunfleja_y_marginal_izquierda__video_12__00-07-58.jpg", "11_Irrigacion_coronaria/07_mapa_coronario_integrado__video_11__00-04-17.jpg", "11_Irrigacion_coronaria/08_ramas_interventriculares_septales__video_14__00-04-08.jpg", "11_Irrigacion_coronaria/09_dominancia_y_rama_interventricular_posterior__video_13__00-08-25.jpg"]}, {"id": "12_Retorno_venoso", "number": 12, "title": "Retorno venoso", "md_file": "12_Retorno_venoso/Retorno_venoso_del_corazon.md", "html": "<h1>Retorno venoso del corazón<\/h1>
+<h2>Programa<\/h2>
+<blockquote>
+<p><strong>Retorno venoso del corazón: venas cardíacas y seno coronario.<\/strong><\/p>
+<\/blockquote>
+<h2>1. Organización general<\/h2>
+<blockquote>
+<p><strong>El drenaje venoso cardíaco no reproduce exactamente el trayecto de las arterias. Se reconoce un sistema principal que converge en el seno coronario y venas que desembocan directamente en las cavidades cardíacas.<\/strong><\/p>
+<\/blockquote>
+<h2>2. Vena cardíaca magna<\/h2>
+<blockquote>
+<p><strong>Se inicia en la región del vértice como vena interventricular anterior. Asciende por el surco interventricular anterior, se dirige luego hacia la izquierda y continúa por el surco coronario como vena cardíaca magna.<\/strong><\/p>
+<\/blockquote>
+<p>Recibe tributarias procedentes de:<\/p>
+<ul>
+<li>septo interventricular;<\/li>
+<li>paredes anteriores de ambos ventrículos;<\/li>
+<li>pared lateral del ventrículo izquierdo;<\/li>
+<li>atrio izquierdo.<\/li>
+<\/ul>
+<h2>3. Seno coronario<\/h2>
+<blockquote>
+<p><strong>La vena cardíaca magna aumenta de calibre en su segmento terminal y continúa con el seno coronario, situado en la cara inferior y posterior del corazón, en relación con el surco coronario. El seno coronario mide aproximadamente 3 cm y desemboca en el atrio derecho.<\/strong><\/p>
+<\/blockquote>
+<p>Entre sus afluentes principales se describen:<\/p>
+<ul>
+<li>vena cardíaca magna;<\/li>
+<li>vena oblicua del atrio izquierdo;<\/li>
+<li>vena posterior del ventrículo izquierdo;<\/li>
+<li>vena cardíaca media;<\/li>
+<li>vena cardíaca menor.<\/li>
+<\/ul>
+<h2>4. Vena cardíaca media<\/h2>
+<blockquote>
+<p><strong>La vena cardíaca media recorre el surco interventricular posterior y termina en el seno coronario.<\/strong><\/p>
+<\/blockquote>
+<p>También puede encontrarse descrita como <strong>vena interventricular posterior<\/strong>.<\/p>
+<h2>5. Vena cardíaca menor<\/h2>
+<blockquote>
+<p><strong>Se relaciona con el borde derecho y con la porción derecha del surco coronario y puede desembocar en el segmento terminal del seno coronario.<\/strong><\/p>
+<\/blockquote>
+<h2>6. Venas cardíacas anteriores<\/h2>
+<blockquote>
+<p><strong>Proceden principalmente de la porción anterior y derecha del ventrículo derecho y desembocan directamente en el atrio derecho, sin pasar por el seno coronario.<\/strong><\/p>
+<\/blockquote>
+<p>Una de las más importantes es la <strong>vena marginal derecha<\/strong>.<\/p>
+<h2>7. Venas cardíacas mínimas<\/h2>
+<blockquote>
+<p><strong>Son pequeñas venas que se originan en las paredes cardíacas y se abren directamente en las cavidades vecinas mediante pequeños orificios. Son especialmente numerosas en las paredes atriales y en los músculos papilares.<\/strong><\/p>
+<\/blockquote>
+<h2>8. Embriología del seno coronario<\/h2>
+<blockquote>
+<p><strong>Rouvière describe al seno coronario como un derivado del segmento terminal de la vena cava superior izquierda embrionaria que involuciona durante el desarrollo.<\/strong><\/p>
+<\/blockquote>
+<h2>Speech integrado<\/h2>
+<blockquote>
+<p><strong>El retorno venoso del corazón comprende un sistema principal que converge en el seno coronario y venas que drenan directamente en las cavidades. La vena interventricular anterior se origina próxima al vértice, asciende por el surco interventricular anterior y continúa como vena cardíaca magna en el surco coronario. Su segmento terminal dilatado forma el seno coronario, de aproximadamente 3 cm, que desemboca en el atrio derecho. El seno recibe principalmente la vena cardíaca magna, la vena oblicua del atrio izquierdo, la vena posterior del ventrículo izquierdo, la vena cardíaca media y la vena cardíaca menor. Las venas cardíacas anteriores drenan directamente en el atrio derecho y las venas cardíacas mínimas se abren directamente en las cavidades cardíacas.<\/strong><\/p>
+<\/blockquote>
+<h2>Fotogramas sugeridos – Costarelli<\/h2>
+<blockquote>
+<p><strong>Selección visual:<\/strong> 4 fotograma(s) candidato(s). No existe un máximo prefijado; se conservaron sólo vistas con una utilidad anatómica diferente. Los tiempos provienen de las transcripciones, por lo que conviene revisar la ventana y elegir el cuadro más nítido.<\/p>
+<\/blockquote>
+<h3>RV-1 — CORAZÓN 15<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:00:40–00:01:13<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:00:55<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Venas cardíacas anteriores y venas cardíacas mínimas; desembocadura directa en cavidades<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> venas cardíacas anteriores; venas cardíacas mínimas; atrio derecho; orificios venosos<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista anterior enfocada en venas que drenan directamente al atrio derecho; útil para distinguirlas del sistema del seno coronario.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> El video usa denominaciones históricas para algunos orificios; rotular según el MD.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>hB3c3dNDyek<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>RV-2 — CORAZÓN 15<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:01:25–00:02:05<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:01:45<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Vena cardíaca magna; vena interventricular anterior; relación con rama interventricular anterior<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> vena cardíaca magna; vena interventricular anterior; surco interventricular anterior<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista anterior siguiendo el colector venoso desde el vértice hacia el surco coronario.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>hB3c3dNDyek<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>RV-3 — CORAZÓN 15<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:02:25–00:03:45<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:03:30<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Seno coronario; vena cardíaca media; vena cardíaca menor; afluentes<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> seno coronario; vena cardíaca media; vena cardíaca menor; surco interventricular posterior<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Vista posterior con el seno coronario y los principales afluentes venosos.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>hB3c3dNDyek<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>RV-4 — CORAZÓN 15<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:02:40–00:03:13<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:02:56<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Seno coronario: situación y desembocadura en el atrio derecho<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> seno coronario; atrio derecho; orificio del seno coronario; cara inferior<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Secuencia que ubica el seno coronario y luego su terminación en el atrio derecho; complementa el fotograma posterior de sus afluentes.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>hB3c3dNDyek<\/code><\/p>
+<\/li>
+<\/ul>
+<h2>Bibliografía<\/h2>
+<ul>
+<li>Programa analítico 2026 – 1.ª Cátedra de Anatomía, UBA.<\/li>
+<li>Latarjet–Ruiz Liard, Anatomía Humana, 5.ª edición, tomo 2.<\/li>
+<li>Rouvière y Delmas, Anatomía Humana, tomo 2.<\/li>
+<\/ul>
+", "images": ["12_Retorno_venoso/01_vena_cardiaca_magna_y_vena_interventricular_anterior__video_15__00-01-45.jpg", "12_Retorno_venoso/02_seno_coronario_y_afluentes_vista_posterior__video_15__00-03-30.jpg", "12_Retorno_venoso/03_seno_coronario_situacion_y_desembocadura__video_15__00-02-56.jpg"]}, {"id": "13_Sistema_de_conduccion", "number": 13, "title": "Sistema de conducción", "md_file": "13_Sistema_de_conduccion/Sistema_de_conduccion_del_corazon.md", "html": "<h1>Sistema de conducción del corazón<\/h1>
+<h2>Programa<\/h2>
+<ul>
+<li>Concepto.<\/li>
+<li>Nodo sinoatrial: ubicación y relaciones.<\/li>
+<li>Vías internodales.<\/li>
+<li>Nodo atrioventricular: ubicación y relaciones.<\/li>
+<li>Fascículo atrioventricular.<\/li>
+<li>Rama derecha.<\/li>
+<li>Rama izquierda y sus divisiones anterior y posterior.<\/li>
+<li>Ramos subendocárdicos.<\/li>
+<li>Papel funcional.<\/li>
+<\/ul>
+<h2>1. Concepto<\/h2>
+<blockquote>
+<p><strong>El sistema de conducción del corazón está constituido por células miocárdicas especializadas que generan y transmiten la despolarización cardíaca.<\/strong><\/p>
+<\/blockquote>
+<p>El corazón posee automatismo intrínseco: Latarjet señala que puede continuar latiendo separado de sus conexiones nerviosas extrínsecas.<\/p>
+<h2>2. Componentes<\/h2>
+<ul>
+<li>nodo sinoatrial;<\/li>
+<li>nodo atrioventricular;<\/li>
+<li>fascículo atrioventricular;<\/li>
+<li>rama derecha;<\/li>
+<li>rama izquierda;<\/li>
+<li>ramos subendocárdicos.<\/li>
+<\/ul>
+<h2>3. Nodo sinoatrial<\/h2>
+<blockquote>
+<p><strong>Se sitúa en la pared del atrio derecho, en la porción sinusal, próximo al orificio de la vena cava superior y relacionado con la cresta terminal. Su extremo superior es anteroderecho respecto del orificio de la vena cava superior y desciende por la región interna de la cresta terminal.<\/strong><\/p>
+<\/blockquote>
+<h3>Función<\/h3>
+<blockquote>
+<p><strong>Es el centro excitoconductor primario del corazón en condiciones normales.<\/strong><\/p>
+<\/blockquote>
+<h2>4. Vías internodales<\/h2>
+<blockquote>
+<p><strong>El programa solicita su estudio, pero Latarjet aclara que las vías internodales e interatriales descritas clásicamente no se consideran actualmente fascículos constituidos por tejido miocárdico especializado anatómicamente diferenciado.<\/strong><\/p>
+<\/blockquote>
+<h2>5. Nodo atrioventricular<\/h2>
+<blockquote>
+<p><strong>Se sitúa en la pared del atrio derecho, en el septo atrioventricular, dentro de una región triangular.<\/strong><\/p>
+<\/blockquote>
+<p>Límites de esa región:<\/p>
+<ul>
+<li><strong>posterior:<\/strong> orificio del seno coronario;<\/li>
+<li><strong>inferolateral:<\/strong> inserción de la valva septal de la válvula tricúspide;<\/li>
+<li><strong>medial:<\/strong> tendón de la válvula de la vena cava inferior.<\/li>
+<\/ul>
+<p>Esta región triangular suele denominarse <strong>[epónimo: triángulo de Koch]<\/strong>.<\/p>
+<h2>6. Fascículo atrioventricular<\/h2>
+<blockquote>
+<p><strong>Parte del nodo atrioventricular, se dirige anterosuperiormente y hacia la izquierda, alcanza la porción membranosa del septo interventricular y finalmente se divide en ramas derecha e izquierda.<\/strong><\/p>
+<\/blockquote>
+<p>El fascículo atrioventricular también se encuentra en bibliografía clásica como <strong>[epónimo: haz de His]<\/strong>.<\/p>
+<h2>7. Rama derecha<\/h2>
+<blockquote>
+<p><strong>Se dirige anteriormente sobre la cara derecha del septo interventricular, penetra en la trabécula septomarginal y alcanza la base de los músculos papilares del ventrículo derecho.<\/strong><\/p>
+<\/blockquote>
+<h2>8. Rama izquierda<\/h2>
+<blockquote>
+<p><strong>Alcanza la cara izquierda del septo interventricular, pasa en relación con el intervalo entre las valvas semilunares aórticas derecha y posterior y luego se divide en grupos anterior y posterior.<\/strong><\/p>
+<\/blockquote>
+<p>Estas divisiones se distribuyen hacia las regiones de los músculos papilares anterior y posterior del ventrículo izquierdo.<\/p>
+<h2>9. Ramos subendocárdicos<\/h2>
+<blockquote>
+<p><strong>Las ramas derecha e izquierda se dividen en numerosas ramificaciones subendocárdicas que forman una red de amplias mallas sobre las paredes ventriculares y los músculos papilares.<\/strong><\/p>
+<\/blockquote>
+<p>La denominación clásica <strong>[epónimo: fibras o red de Purkinje]<\/strong> corresponde a estos ramos subendocárdicos.<\/p>
+<h2>10. Irrigación<\/h2>
+<ul>
+<li><strong>Nodo sinoatrial:<\/strong> recibe generalmente una rama procedente de la coronaria derecha, aunque puede proceder de la izquierda.<\/li>
+<li><strong>Nodo atrioventricular y fascículo atrioventricular:<\/strong> reciben habitualmente la primera rama interventricular septal posterior.<\/li>
+<li><strong>Rama derecha:<\/strong> recibe aporte de ramas interventriculares septales anteriores.<\/li>
+<li><strong>Rama izquierda:<\/strong> recibe ramas interventriculares septales anteriores de la coronaria izquierda.<\/li>
+<\/ul>
+<h2>11. Papel funcional<\/h2>
+<blockquote>
+<p><strong>El impulso se inicia normalmente en el nodo sinoatrial, se propaga por el miocardio atrial hacia el nodo atrioventricular y continúa por el fascículo atrioventricular, sus ramas derecha e izquierda y los ramos subendocárdicos, coordinando la activación ventricular.<\/strong><\/p>
+<\/blockquote>
+<h2>Speech integrado<\/h2>
+<blockquote>
+<p><strong>El sistema de conducción del corazón está formado por células miocárdicas especializadas y comprende nodo sinoatrial, nodo atrioventricular, fascículo atrioventricular, ramas derecha e izquierda y ramos subendocárdicos. El nodo sinoatrial se sitúa en la pared del atrio derecho, próximo a la vena cava superior y relacionado con la cresta terminal. Latarjet aclara que las vías internodales clásicas no constituyen fascículos especializados anatómicamente diferenciados. El nodo atrioventricular se encuentra en una región triangular limitada por el orificio del seno coronario, la inserción de la valva septal tricuspídea y el tendón de la válvula de la vena cava inferior. Desde allí parte el fascículo atrioventricular, que alcanza la porción membranosa del septo y se divide en una rama derecha, relacionada con la trabécula septomarginal, y una rama izquierda, que se divide en grupos anterior y posterior. Ambas terminan en ramos subendocárdicos distribuidos por el miocardio ventricular.<\/strong><\/p>
+<\/blockquote>
+<h2>Fotogramas sugeridos – Costarelli<\/h2>
+<blockquote>
+<p><strong>Selección visual:<\/strong> 6 fotograma(s) candidato(s). No existe un máximo prefijado; se conservaron sólo vistas con una utilidad anatómica diferente. Los tiempos provienen de las transcripciones, por lo que conviene revisar la ventana y elegir el cuadro más nítido.<\/p>
+<\/blockquote>
+<h3>SC-1 — CORAZÓN 16<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:02:25–00:02:49<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:02:42<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Nodo sinoatrial: ubicación y relación con cresta terminal y vena cava superior<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> nodo sinoatrial; cresta terminal; vena cava superior; atrio derecho<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema del atrio derecho con localización del nodo sinoatrial.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>5QNEttP6b3A<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>SC-2 — CORAZÓN 16<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:03:49–00:04:13<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:04:06<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Nodo atrioventricular: región y reparos anatómicos<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> nodo atrioventricular; seno coronario; valva septal de la tricúspide; región septal<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema de la región triangular del nodo atrioventricular con sus reparos.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> El video y parte de la literatura usan [epónimo: triángulo de Koch]. En el MD mantenemos los reparos anatómicos como contenido principal.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>5QNEttP6b3A<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>SC-3 — CORAZÓN 16<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:05:15–00:05:35<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:05:26<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Fascículo atrioventricular; ramas derecha e izquierda; ramos subendocárdicos<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> fascículo atrioventricular; rama derecha; rama izquierda; ramos subendocárdicos<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema del fascículo atravesando el septo, bifurcándose y distribuyéndose por los ventrículos.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> El video usa [epónimo: haz de His] y [epónimo: fibras de Purkinje]; en el MD las denominaciones principales son fascículo atrioventricular y ramos subendocárdicos.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>5QNEttP6b3A<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>SC-4 — CORAZÓN 16<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:01:24–00:02:17<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:01:44<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Concepto espacial del sistema de conducción; aislamiento eléctrico atrioventricular y vía de continuidad especializada<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> sistema de conducción; anillos fibrosos; nodo atrioventricular; fascículo atrioventricular<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema general previo a abrir el atrio derecho, útil para entender por qué la conducción atrioventricular se concentra en una vía especializada.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> La función se conserva según el MD; usar la imagen principalmente para la relación espacial.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>5QNEttP6b3A<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>SC-5 — CORAZÓN 16<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:04:28–00:04:54<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:04:42<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Vías internodales clásicamente descritas<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> vías internodales; nodo sinoatrial; nodo atrioventricular<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema clásico de trayectos entre ambos nodos. Puede servir para reconocer qué está dibujando el docente si aparece en examen o clase.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> Latarjet aclara que actualmente no se consideran fascículos especializados anatómicamente diferenciados. No convertir el dibujo clásico en una afirmación anatómica moderna.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>5QNEttP6b3A<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>SC-6 — CORAZÓN 16<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:05:40–00:06:13<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:05:48<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Vista integrada del sistema cardionector: nodo sinoatrial, nodo atrioventricular, fascículo atrioventricular, ramas y red subendocárdica<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> nodo sinoatrial; nodo atrioventricular; fascículo atrioventricular; ramas derecha e izquierda; ramos subendocárdicos<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Recapitulación final del esquema completo. Es el fotograma panorámico para acompañar el speech integrado, mientras SC-1/2/3 sirven como close-ups.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> Los epónimos del audio no son la nomenclatura principal del MD.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>5QNEttP6b3A<\/code><\/p>
+<\/li>
+<\/ul>
+<h2>Bibliografía<\/h2>
+<ul>
+<li>Programa analítico 2026 – 1.ª Cátedra de Anatomía, UBA.<\/li>
+<li>Latarjet–Ruiz Liard, Anatomía Humana, 5.ª edición, tomo 2.<\/li>
+<li>Rouvière y Delmas, Anatomía Humana, tomo 2.<\/li>
+<\/ul>
+", "images": ["13_Sistema_de_conduccion/01_nodo_sinoatrial__video_16__00-02-42.jpg", "13_Sistema_de_conduccion/02_nodo_atrioventricular_y_reparos__video_16__00-04-06.jpg", "13_Sistema_de_conduccion/03_vias_internodales_clasicas_NO_fasciculos_especializados__video_16__00-04-42.jpg", "13_Sistema_de_conduccion/04_fasciculo_atrioventricular_y_ramas__video_16__00-05-20.jpg", "13_Sistema_de_conduccion/05_sistema_cardionector_integrado_y_red_subendocardica__video_16__00-05-30.jpg"]}, {"id": "14_Inervacion_extrinseca_y_plexo", "number": 14, "title": "Inervación extrínseca y plexo cardíaco", "md_file": "14_Inervacion_extrinseca_y_plexo/Inervacion_extrinseca_y_plexo_cardiaco.md", "html": "<h1>Inervación extrínseca y plexo cardíaco<\/h1>
+<h2>Programa<\/h2>
+<blockquote>
+<p><strong>Inervación extrínseca del corazón: origen y comportamiento de las fibras simpáticas y parasimpáticas.<\/strong><\/p>
+<\/blockquote>
+<h2>1. Concepto<\/h2>
+<blockquote>
+<p><strong>La inervación extrínseca del corazón pertenece al sistema nervioso autónomo. Los ramos cardíacos simpáticos y parasimpáticos se comunican alrededor de los grandes vasos y forman el plexo cardíaco.<\/strong><\/p>
+<\/blockquote>
+<p>Esta inervación <strong>modula<\/strong> la actividad cardíaca, pero no constituye el origen del automatismo, que depende del sistema de conducción intrínseco.<\/p>
+<h2>2. Ramos cardíacos simpáticos<\/h2>
+<p>Según Latarjet y Rouvière, los nervios cardíacos simpáticos que forman el plexo se describen procedentes de los ganglios cervicales del tronco simpático:<\/p>
+<ul>
+<li>cervical superior;<\/li>
+<li>cervical medio;<\/li>
+<li>cervical inferior o cervicotorácico.<\/li>
+<\/ul>
+<p>Los ramos superiores y medios siguen relaciones próximas a los ejes carotídeos y alcanzan el plexo en relación posterior con la aorta. El ramo inferior es más corto y posterior.<\/p>
+<blockquote>
+<p><strong>Rouvière señala expresamente que, en su descripción del plexo cardíaco, estos ramos simpáticos proceden de los ganglios cervicales y no de los ganglios torácicos superiores.<\/strong><\/p>
+<\/blockquote>
+<h2>3. Ramos cardíacos parasimpáticos<\/h2>
+<p>Proceden del <strong>nervio vago<\/strong>.<\/p>
+<p>Latarjet distingue:<\/p>
+<ul>
+<li>ramos cardíacos cervicales superiores;<\/li>
+<li>ramos cardíacos cervicales inferiores;<\/li>
+<li>ramos cardíacos torácicos.<\/li>
+<\/ul>
+<p>Los superiores nacen del vago cervical. Los inferiores y torácicos pueden proceder del vago intratorácico o del nervio laríngeo recurrente según el lado y el nivel.<\/p>
+<h2>4. Formación del plexo cardíaco<\/h2>
+<blockquote>
+<p><strong>Al alcanzar la región del arco aórtico, los ramos cardíacos simpáticos y vagales se comunican ampliamente.<\/strong><\/p>
+<\/blockquote>
+<p>Clásicamente se describen:<\/p>
+<h3>Plexo superficial o anterior<\/h3>
+<p>Se dispone principalmente <strong>anterior al arco aórtico<\/strong>.<\/p>
+<h3>Plexo profundo o posterior<\/h3>
+<p>Es más extenso y se dispone <strong>posterior al arco aórtico y anterior a la tráquea<\/strong>.<\/p>
+<p>Ambos se comunican mediante ramos que pasan <strong>inferiormente al arco aórtico<\/strong>.<\/p>
+<h2>5. Distribución hacia el corazón<\/h2>
+<p>Latarjet agrupa los nervios que parten de estos plexos en relación con dos raíces vasculares:<\/p>
+<h3>Nervios de la raíz arterial<\/h3>
+<p>Se distribuyen alrededor de:<\/p>
+<ul>
+<li>aorta;<\/li>
+<li>tronco pulmonar;<\/li>
+<li>arterias coronarias, donde forman plexos pericoronarios.<\/li>
+<\/ul>
+<h3>Nervios de la raíz venosa<\/h3>
+<p>Pasan <strong>posteriores a la bifurcación del tronco pulmonar<\/strong> y alcanzan:<\/p>
+<ul>
+<li>atrio izquierdo;<\/li>
+<li>atrio derecho;<\/li>
+<li>cara inferior de los ventrículos;<\/li>
+<li>región de la vena cava inferior.<\/li>
+<\/ul>
+<h2>6. Distribución intracardíaca<\/h2>
+<p>Los ramos forman:<\/p>
+<ul>
+<li>red subepicárdica;<\/li>
+<li>redes intramiocárdicas;<\/li>
+<li>red subendocárdica.<\/li>
+<\/ul>
+<h2>7. Cardionector vs. plexo cardíaco<\/h2>
+<p>| Sistema de conducción | Plexo cardíaco |
+|---|---|
+| Intrínseco | Extrínseco |
+| Miocardio especializado | Fibras autónomas simpáticas y vagales |
+| Genera y conduce la actividad eléctrica | Modula la actividad cardíaca |
+| Nodo sinoatrial, nodo atrioventricular, fascículo, ramas y ramos subendocárdicos | Ramos cardíacos simpáticos y parasimpáticos |<\/p>
+<h2>Speech integrado<\/h2>
+<blockquote>
+<p><strong>La inervación extrínseca del corazón depende de fibras simpáticas y parasimpáticas. Los ramos simpáticos cardíacos descritos por Latarjet y Rouvière proceden de los ganglios cervicales superior, medio e inferior del tronco simpático. Los ramos parasimpáticos proceden del nervio vago y comprenden ramos cervicales y torácicos. En la región del arco aórtico ambos sistemas se comunican y forman un plexo cardíaco superficial o anterior y otro profundo o posterior. Desde ellos parten nervios relacionados con la raíz arterial, que siguen a la aorta, al tronco pulmonar y a las coronarias, y nervios relacionados con la raíz venosa, que alcanzan los atrios y la cara inferior ventricular. Esta inervación es extrínseca y moduladora; el automatismo cardíaco depende del sistema de conducción intrínseco.<\/strong><\/p>
+<\/blockquote>
+<h2>Fotogramas sugeridos – Costarelli<\/h2>
+<blockquote>
+<p><strong>Selección visual:<\/strong> 5 fotograma(s) candidato(s). No existe un máximo prefijado; se conservaron sólo vistas con una utilidad anatómica diferente. Los tiempos provienen de las transcripciones, por lo que conviene revisar la ventana y elegir el cuadro más nítido.<\/p>
+<\/blockquote>
+<h3>INE-1 — CORAZÓN 16<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:06:26–00:06:44<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:06:32<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Concepto; componentes simpático y parasimpático<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> plexo cardíaco; simpático; parasimpático; nervio vago<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema inicial que contrapone los dos componentes autonómicos que llegan al plexo cardíaco.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>5QNEttP6b3A<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>INE-2 — CORAZÓN 16<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:07:42–00:08:05<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:07:55<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Plexo cardíaco superficial; relación con arco aórtico<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> plexo cardíaco superficial; arco aórtico; ramos cardíacos<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Momento en que el esquema separa los ramos que pasan anteriormente al arco y forman el plexo superficial.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> Usar el fotograma para trayectos/posición. La composición exacta del plexo se mantiene según Latarjet/Rouvière en el MD.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>5QNEttP6b3A<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>INE-3 — CORAZÓN 16<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:08:02–00:08:42<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:08:35<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Plexo cardíaco profundo; comunicación entre plexos; distribución hacia vasos coronarios<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> plexo cardíaco profundo; aorta; tronco pulmonar; arterias coronarias<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema posterior/profundo alrededor de los grandes vasos, útil para distinguirlo del plexo superficial.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> Usar la imagen para topografía; no reemplazar con el audio la lista oficial de ramos simpáticos y vagales.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>5QNEttP6b3A<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>INE-4 — CORAZÓN 16<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:06:44–00:07:18<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:07:12<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Origen simpático cervical de los nervios cardíacos; relación con el tronco simpático<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> tronco simpático cervical; ganglios cervicales; nervios cardíacos simpáticos<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema del componente simpático cervical antes de converger en el plexo cardíaco.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> El video usa epónimos para ganglios y conexiones. Rotular sólo ganglio cervical superior, medio e inferior/cervicotorácico según el MD.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>5QNEttP6b3A<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>INE-5 — CORAZÓN 16<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:07:18–00:07:45<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:07:24<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Componente parasimpático vagal; ramos cardíacos hacia el plexo<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> nervio vago; ramos cardíacos; parasimpático; plexo cardíaco<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema que agrega los ramos vagales al componente simpático y permite seguir su convergencia hacia el arco aórtico.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> Usar como mapa topográfico. La distribución exacta derecha/izquierda y cervical/torácica se mantiene según Latarjet/Rouvière en el MD.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>5QNEttP6b3A<\/code><\/p>
+<\/li>
+<\/ul>
+<h2>Bibliografía<\/h2>
+<ul>
+<li>Programa analítico 2026 – 1.ª Cátedra de Anatomía, UBA.<\/li>
+<li>Latarjet–Ruiz Liard, Anatomía Humana, 5.ª edición, tomo 2.<\/li>
+<li>Rouvière y Delmas, Anatomía Humana, tomo 2.<\/li>
+<\/ul>
+", "images": []}, {"id": "15_Drenaje_linfatico", "number": 15, "title": "Drenaje linfático", "md_file": "15_Drenaje_linfatico/Nodos_y_drenaje_linfatico_corazon_y_pericardio.md", "html": "<h1>Nodos y drenaje linfático del corazón y del pericardio<\/h1>
+<h2>1. Linfáticos del corazón<\/h2>
+<p>Latarjet distingue tres redes linfáticas:<\/p>
+<ul>
+<li><strong>subendocárdica<\/strong>;<\/li>
+<li><strong>intramiocárdica<\/strong>;<\/li>
+<li><strong>subepicárdica<\/strong>.<\/li>
+<\/ul>
+<p>La red intramiocárdica está formada por capilares ampliamente anastomosados, pero la red subepicárdica es la que puede describirse anatómicamente con mayor precisión.<\/p>
+<p>De la red subepicárdica parten <strong>dos colectores principales: izquierdo y derecho<\/strong>.<\/p>
+<h3>Colector principal izquierdo<\/h3>
+<blockquote>
+<p><strong>El colector principal izquierdo reúne los troncos del territorio izquierdo, relacionados con el surco coronario y el surco interventricular anterior. Sigue el borde izquierdo del tronco pulmonar, emerge por la región posterosuperior de la base cardíaca y termina en los nodos traqueobronquiales inferiores.<\/strong><\/p>
+<\/blockquote>
+<p>Rouvière lo describe de manera equivalente: asciende por la <strong>cara pulmonar izquierda<\/strong>, pasa posteriormente al <strong>tronco pulmonar<\/strong> y termina en un <strong>nodo traqueobronquial inferior<\/strong>.<\/p>
+<h3>Colector principal derecho<\/h3>
+<blockquote>
+<p><strong>El colector principal derecho se origina principalmente en el territorio derecho del corazón, recorre la porción derecha del surco coronario, pasa entre la aorta y el tronco pulmonar y luego anteriormente a la aorta, para terminar en los nodos mediastínicos anteriores.<\/strong><\/p>
+<\/blockquote>
+<p>Rouvière agrega que acompaña inicialmente a la <strong>arteria coronaria derecha<\/strong> y termina habitualmente en un nodo del <strong>grupo mediastínico anterior izquierdo<\/strong>.<\/p>
+<h3>Nodos epicárdicos<\/h3>
+<p>Rouvière menciona además que pueden existir <strong>uno a tres pequeños nodos linfáticos epicárdicos<\/strong>, ubicados a lo largo de los colectores principales en relación con los troncos aórtico y pulmonar.<\/p>
+<h3>Speech de corazón<\/h3>
+<blockquote>
+<p><strong>Los linfáticos del corazón forman redes subendocárdicas, intramiocárdicas y subepicárdicas. De la red subepicárdica parten dos colectores principales. El izquierdo sigue la región del surco coronario e interventricular anterior, asciende junto al tronco pulmonar y termina en los nodos traqueobronquiales inferiores. El colector derecho reúne principalmente la linfa del corazón derecho, acompaña inicialmente a la coronaria derecha, pasa entre la aorta y el tronco pulmonar y luego anteriormente a la aorta, terminando en los nodos mediastínicos anteriores.<\/strong><\/p>
+<\/blockquote>
+<hr />
+<h1>2. Linfáticos del pericardio<\/h1>
+<p>Rouvière describe que los vasos linfáticos del pericardio se dirigen a:<\/p>
+<ul>
+<li><strong>nodos mediastínicos anteriores<\/strong>;<\/li>
+<li><strong>nodos mediastínicos posteriores<\/strong>;<\/li>
+<li><strong>nodos frénicos<\/strong>;<\/li>
+<li><strong>nodos traqueobronquiales inferiores<\/strong>.<\/li>
+<\/ul>
+<h2>Nodos frénicos superiores<\/h2>
+<p>Son especialmente importantes porque se sitúan alrededor de la <strong>base del pericardio<\/strong> y reciben linfáticos del propio pericardio.<\/p>
+<p>Se dividen en:<\/p>
+<ul>
+<li><strong>nodos prepericárdicos<\/strong>, anteriores;<\/li>
+<li><strong>nodos pericárdicos laterales<\/strong>, próximos a los nervios frénicos y, del lado derecho, a la vena cava inferior.<\/li>
+<\/ul>
+<p>Sus eferentes se dirigen principalmente hacia:<\/p>
+<ul>
+<li><strong>nodos paraesternales<\/strong>;<\/li>
+<li><strong>nodos mediastínicos anteriores<\/strong>.<\/li>
+<\/ul>
+<h3>Speech de pericardio<\/h3>
+<blockquote>
+<p><strong>Los vasos linfáticos del pericardio drenan hacia cuatro grupos principales: nodos mediastínicos anteriores, mediastínicos posteriores, frénicos y traqueobronquiales inferiores. Entre los frénicos superiores se encuentran nodos prepericárdicos y pericárdicos laterales, situados alrededor de la base del pericardio; sus eferentes alcanzan principalmente nodos paraesternales y mediastínicos anteriores.<\/strong><\/p>
+<\/blockquote>
+<hr />
+<h1>Speech integrado<\/h1>
+<blockquote>
+<p><strong>El drenaje linfático cardíaco comienza en redes subendocárdicas, intramiocárdicas y subepicárdicas. De la red subepicárdica parten dos colectores principales. El izquierdo asciende en relación con el tronco pulmonar y termina en los nodos traqueobronquiales inferiores; el derecho acompaña inicialmente a la coronaria derecha, pasa entre la aorta y el tronco pulmonar y luego anteriormente a la aorta, para terminar en nodos mediastínicos anteriores. El pericardio, en cambio, drena hacia nodos mediastínicos anteriores y posteriores, frénicos y traqueobronquiales inferiores. Los nodos frénicos superiores, ubicados alrededor de la base pericárdica, incluyen grupos prepericárdicos y pericárdicos laterales.<\/strong><\/p>
+<\/blockquote>
+<h2>Regla mental<\/h2>
+<p><strong>Corazón → dos colectores: izquierdo a traqueobronquiales inferiores; derecho a mediastínicos anteriores.<\/strong><\/p>
+<p><strong>Pericardio → mediastínicos + frénicos + traqueobronquiales inferiores.<\/strong><\/p>
+<h2>Fotogramas sugeridos – Costarelli<\/h2>
+<blockquote>
+<p><strong>Selección visual:<\/strong> 3 fotograma(s) candidato(s). No existe un máximo prefijado; se conservaron sólo vistas con una utilidad anatómica diferente. Los tiempos provienen de las transcripciones, por lo que conviene revisar la ventana y elegir el cuadro más nítido.<\/p>
+<\/blockquote>
+<h3>LIN-1 — CORAZÓN 15<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:05:44–00:06:25<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:05:58<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Redes subendocárdica, intramiocárdica y subepicárdica<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> linfáticos; red subendocárdica; miocardio; red subepicárdica<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Corte/esquema de pared cardíaca mostrando la progresión de los linfáticos hacia la red subepicárdica.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>hB3c3dNDyek<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>LIN-2 — CORAZÓN 15<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:06:30–00:07:18<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:07:04<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Colector principal izquierdo y colector principal derecho<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> colector izquierdo; colector derecho; surco coronario; surco interventricular anterior<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Esquema superficial con los dos colectores linfáticos principales.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>hB3c3dNDyek<\/code><\/p>
+<\/li>
+<\/ul>
+<h3>LIN-3 — CORAZÓN 15<\/h3>
+<ul>
+<li><p><strong>Ventana útil:<\/strong> <code>00:07:31–00:08:30<\/code><\/p>
+<\/li>
+<li><p><strong>Captura sugerida:<\/strong> <strong><code>00:08:05<\/code><\/strong><\/p>
+<\/li>
+<li><p><strong>Subítems que puede ilustrar:<\/strong> Destino ganglionar de los colectores cardíacos<\/p>
+<\/li>
+<li><p><strong>Palabras clave normalizadas:<\/strong> nodos mediastínicos anteriores; nodos traqueobronquiales inferiores; drenaje linfático<\/p>
+<\/li>
+<li><p><strong>Qué buscar en pantalla:<\/strong> Secuencia final del drenaje hacia nodos mediastínicos/traqueobronquiales.<\/p>
+<\/li>
+<li><p><strong>Precaución:<\/strong> No encontré en las 17 transcripciones un segmento visual dedicado específicamente al drenaje linfático del pericardio. Para ese subítem mantener el MD textual; no forzar un fotograma de corazón como si fuera pericardio.<\/p>
+<\/li>
+<li><p><strong>ID del video:<\/strong> <code>hB3c3dNDyek<\/code><\/p>
+<\/li>
+<\/ul>
+<h2>Bibliografía<\/h2>
+<ul>
+<li>Latarjet–Ruiz Liard, Anatomía Humana, 5.ª edición, tomo 2.<\/li>
+<li>Rouvière y Delmas, Anatomía Humana, tomo 2.<\/li>
+<\/ul>
+", "images": []}];
+let pointIndex = 0;
+let imageIndex = 0;
+
+const nav = document.getElementById('nav');
+const pointTitle = document.getElementById('pointTitle');
+const pointMeta = document.getElementById('pointMeta');
+const article = document.getElementById('article');
+const mainImg = document.getElementById('mainImg');
+const empty = document.getElementById('empty');
+const thumbs = document.getElementById('thumbs');
+const imgCounter = document.getElementById('imgCounter');
+const prevImg = document.getElementById('prevImg');
+const nextImg = document.getElementById('nextImg');
+const progress = document.getElementById('progress');
+const sidebar = document.getElementById('sidebar');
+const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+const sidebarClose = document.getElementById('sidebarClose');
+const menuBtn = document.getElementById('menuBtn');
+const prevPointTop = document.getElementById('prevPointTop');
+const nextPointTop = document.getElementById('nextPointTop');
+const prevPointBottom = document.getElementById('prevPointBottom');
+const nextPointBottom = document.getElementById('nextPointBottom');
+
+DATA.forEach((p,i) => {
+  const b=document.createElement('button');
+  b.innerHTML=`<span class="num">${String(i+1).padStart(2,'0')}</span>${p.title}`;
+  b.onclick=()=>setPoint(i);
+  nav.appendChild(b);
+});
+
+function setPoint(i) {
+  pointIndex = (i + DATA.length) % DATA.length;
+  imageIndex = 0;
+  render();
+  if (window.innerWidth <= 980) closeSidebar();
+}
+
+function setImage(i) {
+  const imgs=DATA[pointIndex].images;
+  if(!imgs.length) return;
+  imageIndex=(i+imgs.length)%imgs.length;
+  renderImage();
+}
+
+function render() {
+  const p=DATA[pointIndex];
+  pointTitle.textContent=p.title;
+  pointMeta.textContent=`Punto ${pointIndex+1} de ${DATA.length} · ${p.images.length} imagen${p.images.length===1?'':'es'}`;
+  article.innerHTML=p.html;
+  article.parentElement.scrollTop=0;
+  progress.style.width=`${((pointIndex+1)/DATA.length)*100}%`;
+  const atFirst = pointIndex === 0;
+  const atLast = pointIndex === DATA.length - 1;
+  [prevPointTop, prevPointBottom].forEach(b => { b.disabled = atFirst; b.style.opacity = atFirst ? '.45' : '1'; });
+  [nextPointTop, nextPointBottom].forEach(b => { b.disabled = atLast; b.style.opacity = atLast ? '.45' : '1'; });
+  [...nav.children].forEach((el,i)=>el.classList.toggle('active',i===pointIndex));
+  nav.children[pointIndex]?.scrollIntoView({block:'nearest'});
+  renderImage();
+}
+
+function renderImage() {
+  const imgs=DATA[pointIndex].images;
+  const has=imgs.length>0;
+  mainImg.style.display=has?'block':'none';
+  empty.style.display=has?'none':'block';
+  prevImg.style.display=imgs.length>1?'block':'none';
+  nextImg.style.display=imgs.length>1?'block':'none';
+  imgCounter.style.display=has?'block':'none';
+  thumbs.style.display=imgs.length>1?'flex':'none';
+  if(!has) { thumbs.innerHTML=''; return; }
+  mainImg.src=imgs[imageIndex];
+  mainImg.alt=DATA[pointIndex].title;
+  imgCounter.textContent=`${imageIndex+1} / ${imgs.length}`;
+  thumbs.innerHTML='';
+  imgs.forEach((src,i)=>{
+    const d=document.createElement('div');
+    d.className='thumb'+(i===imageIndex?' active':'');
+    const im=document.createElement('img');
+    im.src=src; im.alt=`Imagen ${i+1}`;
+    d.appendChild(im); d.onclick=()=>setImage(i); thumbs.appendChild(d);
+  });
+  thumbs.children[imageIndex]?.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+}
+
+prevImg.onclick=()=>setImage(imageIndex-1);
+nextImg.onclick=()=>setImage(imageIndex+1);
+
+function openSidebar() {
+  sidebar.classList.add('open');
+  sidebarBackdrop.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  sidebar.classList.remove('open');
+  sidebarBackdrop.classList.remove('open');
+  document.body.style.overflow = '';
+}
+menuBtn.onclick = openSidebar;
+sidebarClose.onclick = closeSidebar;
+sidebarBackdrop.onclick = closeSidebar;
+
+prevPointTop.onclick = () => { if (pointIndex > 0) setPoint(pointIndex - 1); };
+nextPointTop.onclick = () => { if (pointIndex < DATA.length - 1) setPoint(pointIndex + 1); };
+prevPointBottom.onclick = () => { if (pointIndex > 0) setPoint(pointIndex - 1); };
+nextPointBottom.onclick = () => { if (pointIndex < DATA.length - 1) setPoint(pointIndex + 1); };
+
+
+document.addEventListener('keydown', e => {
+  // Don't hijack keyboard if browser focus is in an editable element.
+  if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
+  if(e.key==='Escape' && sidebar.classList.contains('open')) {
+    e.preventDefault(); closeSidebar(); return;
+  }
+  if(e.code==='Space') {
+    e.preventDefault();
+    setPoint(pointIndex + (e.shiftKey ? -1 : 1));
+  } else if(e.key==='ArrowRight' || e.key==='ArrowDown') {
+    e.preventDefault(); setImage(imageIndex+1);
+  } else if(e.key==='ArrowLeft' || e.key==='ArrowUp') {
+    e.preventDefault(); setImage(imageIndex-1);
+  } else if(e.key==='Home') {
+    e.preventDefault(); setPoint(0);
+  } else if(e.key==='End') {
+    e.preventDefault(); setPoint(DATA.length-1);
+  }
+});
+render();
+</script>
+</body>
+</html>
